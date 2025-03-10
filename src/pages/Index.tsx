@@ -26,18 +26,18 @@ const Index = () => {
                 <span className="text-primary">.</span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-slide-up">
-                منصة الذكاء الاصطناعي الشاملة للطعام مع تحكم مشرف متكامل وإضافات ثورية
+                The All-in-One AI Food Platform with Integrated Admin Controls and Revolutionary Add-ons
               </p>
               <div className="flex flex-wrap gap-4 justify-center animate-slide-up">
                 <Button size="lg" asChild>
                   <Link to="/dashboard">
-                    لوحة التحكم
+                    Dashboard
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <Link to="/explore">
-                    استكشف الوصفات
+                    Explore Recipes
                     <Search className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -51,76 +51,76 @@ const Index = () => {
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight mb-4">ميزات رائعة مدعومة بالذكاء الاصطناعي</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Amazing AI-Powered Features</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              اكتشف مجموعة من الميزات المتقدمة التي تجمع بين الذكاء الاصطناعي وتجربة الطهي
+              Discover a range of advanced features that combine AI with the culinary experience
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center">
+            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center hover-scale">
               <div className="feature-icon mx-auto">
                 <Brain />
               </div>
-              <h3 className="text-xl font-semibold mb-3">توليد محتوى ذكي</h3>
+              <h3 className="text-xl font-semibold mb-3">Smart Content Generation</h3>
               <p className="text-muted-foreground">
-                مقالات ووصفات وصور وفيديوهات مخصصة باستخدام الذكاء الاصطناعي المتقدم
+                AI-powered custom articles, recipes, images, and videos tailored to your preferences
               </p>
             </div>
 
             {/* Feature 2 */}
-            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center">
+            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center hover-scale">
               <div className="feature-icon mx-auto">
                 <ChefHat />
               </div>
-              <h3 className="text-xl font-semibold mb-3">المطبخ الافتراضي</h3>
+              <h3 className="text-xl font-semibold mb-3">Virtual Kitchen</h3>
               <p className="text-muted-foreground">
-                استكشف الأطباق ثلاثية الأبعاد وتفاعل مع المكونات بتقنية الواقع المعزز
+                Explore 3D dishes and interact with ingredients using augmented reality
               </p>
             </div>
 
             {/* Feature 3 */}
-            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center">
+            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center hover-scale">
               <div className="feature-icon mx-auto">
                 <Camera />
               </div>
-              <h3 className="text-xl font-semibold mb-3">التعرف على المكونات</h3>
+              <h3 className="text-xl font-semibold mb-3">Ingredient Recognition</h3>
               <p className="text-muted-foreground">
-                امسح مكونات الثلاجة بكاميرا هاتفك واحصل على اقتراحات وصفات ذكية
+                Scan refrigerator ingredients with your phone camera for smart recipe suggestions
               </p>
             </div>
 
             {/* Feature 4 */}
-            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center">
+            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center hover-scale">
               <div className="feature-icon mx-auto">
                 <Utensils />
               </div>
-              <h3 className="text-xl font-semibold mb-3">مخطط النكهات التفاعلي</h3>
+              <h3 className="text-xl font-semibold mb-3">Interactive Flavor Map</h3>
               <p className="text-muted-foreground">
-                اكتشف تناغم النكهات واحصل على اقتراحات مبتكرة لدمج المكونات
+                Discover flavor harmonies and get innovative suggestions for ingredient combinations
               </p>
             </div>
 
             {/* Feature 5 */}
-            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center">
+            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center hover-scale">
               <div className="feature-icon mx-auto">
                 <Globe />
               </div>
-              <h3 className="text-xl font-semibold mb-3">توثيق التراث الغذائي</h3>
+              <h3 className="text-xl font-semibold mb-3">Culinary Heritage Documentation</h3>
               <p className="text-muted-foreground">
-                حافظ على وصفات تراثية من مختلف الثقافات وشاركها مع العالم
+                Preserve traditional recipes from diverse cultures and share them globally
               </p>
             </div>
 
             {/* Feature 6 */}
-            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center">
+            <div className="bg-card p-6 rounded-xl shadow-sm hover:shadow-md transition-all text-center hover-scale">
               <div className="feature-icon mx-auto">
                 <Share2 />
               </div>
-              <h3 className="text-xl font-semibold mb-3">الطبخ الاجتماعي</h3>
+              <h3 className="text-xl font-semibold mb-3">Social Cooking</h3>
               <p className="text-muted-foreground">
-                شارك في جلسات طبخ افتراضية مع أصدقاء حول العالم بتقنية الواقع المعزز
+                Join virtual cooking sessions with friends worldwide using augmented reality
               </p>
             </div>
           </div>
@@ -132,14 +132,14 @@ const Index = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold tracking-tight mb-4">
-              انضم إلى مستقبل الطعام الآن
+              Join the Future of Food Today
             </h2>
             <p className="text-muted-foreground mb-8">
-              استكشف عالم الامكانيات اللامحدودة مع منصة SapidFood للذكاء الاصطناعي وثورة عالم الطعام
+              Explore a world of endless possibilities with SapidFood's AI platform and revolutionize the food world
             </p>
             <Button size="lg" className="rounded-full px-8" asChild>
               <Link to="/signup">
-                ابدأ الآن
+                Get Started
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -156,26 +156,26 @@ const Index = () => {
                 SapidFood<span className="text-primary">.</span>
               </h3>
               <p className="text-sm text-muted-foreground">
-                حيث تُبتكر النكهات، تُحفظ الثقافات، وتُحطم قواعد المطبخ التقليدية!
+                Where flavors are crafted, cultures preserved, and traditional kitchen rules broken!
               </p>
             </div>
             <div className="flex flex-wrap gap-6">
               <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground">
-                من نحن
+                About Us
               </Link>
               <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">
-                اتصل بنا
+                Contact
               </Link>
               <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground">
-                سياسة الخصوصية
+                Privacy Policy
               </Link>
               <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground">
-                الشروط والأحكام
+                Terms & Conditions
               </Link>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border text-sm text-center text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} SapidFood. جميع الحقوق محفوظة.</p>
+            <p>&copy; {new Date().getFullYear()} SapidFood. All Rights Reserved.</p>
           </div>
         </div>
       </footer>
