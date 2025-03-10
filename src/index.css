@@ -137,6 +137,30 @@
   .float-element {
     @apply animate-float;
   }
+  
+  .text-gradient {
+    @apply bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent;
+  }
+  
+  .metaverse-nav {
+    @apply backdrop-blur-lg bg-black/30 border-b border-white/10;
+  }
+  
+  .metaverse-footer {
+    @apply bg-gradient-to-t from-black/40 to-transparent border-t border-white/10;
+  }
+  
+  .neo-card {
+    @apply bg-gradient-to-br from-purple-900/20 to-blue-900/20 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg hover:shadow-primary/20 transition-all duration-300;
+  }
+  
+  .neo-button {
+    @apply bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full px-6 py-2 font-medium shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300;
+  }
+  
+  .shimmer {
+    @apply relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent;
+  }
 }
 
 .page-transition-enter {
@@ -161,4 +185,10 @@
   transform: translateY(-8px);
   transition: opacity 300ms, transform 300ms;
   transition-timing-function: cubic-bezier(0.2, 0.1, 0.1, 1);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }
