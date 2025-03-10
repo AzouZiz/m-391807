@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -88,11 +89,13 @@
   }
   
   .hover-scale {
-    @apply transition-transform duration-300 ease-spring hover:scale-[1.02] active:scale-[0.98];
+    @apply transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98];
+    transition-timing-function: cubic-bezier(0.25, 0.1, 0.1, 1);
   }
   
   .smooth-transition {
-    @apply transition-all duration-300 ease-spring;
+    @apply transition-all duration-300;
+    transition-timing-function: cubic-bezier(0.25, 0.1, 0.1, 1);
   }
   
   .fade-in {
