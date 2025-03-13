@@ -90,7 +90,7 @@ const Profile = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-800 to-blue-900 flex items-center justify-center">
-        <Card className="w-full max-w-md p-6 metaverse-card">
+        <Card className="w-full max-w-md p-6 bg-white/20 backdrop-blur-lg border border-white/30">
           <div className="text-center">
             <p className="text-white text-lg font-medium">جاري تحميل الملف الشخصي...</p>
           </div>
@@ -110,12 +110,12 @@ const Profile = () => {
           <p className="text-white text-base">منصة تجربة الطعام المدعومة بالذكاء الاصطناعي</p>
         </div>
         
-        <Card className="metaverse-card p-6">
+        <Card className="bg-white/20 backdrop-blur-lg border border-white/30 p-6">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <Button 
                 variant="ghost" 
-                className="text-white p-0 hover:bg-white/10" 
+                className="text-white p-0 hover:bg-white/20" 
                 onClick={() => navigate('/dashboard')}
               >
                 <ArrowLeft className="h-5 w-5 mr-1" />
@@ -125,7 +125,7 @@ const Profile = () => {
             </div>
           </CardHeader>
           
-          <Separator className="bg-white/10 my-2" />
+          <Separator className="bg-white/20 my-2" />
           
           <CardContent className="pt-6">
             <form onSubmit={handleSaveProfile} className="space-y-4">
@@ -145,7 +145,7 @@ const Profile = () => {
                     id="name" 
                     type="text" 
                     placeholder="أدخل اسمك الكامل" 
-                    className="metaverse-input pl-10 text-white bg-white/10"
+                    className="pl-10 text-white bg-white/20 border-white/30"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
@@ -167,13 +167,13 @@ const Profile = () => {
                     type="email" 
                     value={user?.email}
                     readOnly
-                    className="metaverse-input pl-10 text-white bg-white/10 opacity-80 cursor-not-allowed"
+                    className="pl-10 text-white bg-white/20 border-white/30 opacity-80 cursor-not-allowed"
                   />
                 </div>
-                <p className="text-white text-xs">لا يمكن تغيير البريد الإلكتروني</p>
+                <p className="text-white/80 text-xs">لا يمكن تغيير البريد الإلكتروني</p>
               </div>
             
-              <Button type="submit" className="metaverse-button w-full mt-6 text-white font-medium">
+              <Button type="submit" className="w-full mt-6 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white font-medium">
                 <Save className="mr-2 h-4 w-4" />
                 حفظ التغييرات
               </Button>
@@ -181,10 +181,10 @@ const Profile = () => {
           </CardContent>
           
           <CardFooter className="flex flex-col pt-6">
-            <Separator className="bg-white/10 mb-6" />
+            <Separator className="bg-white/20 mb-6" />
             <Button 
               variant="outline" 
-              className="w-full border-white/20 text-white hover:bg-red-500/20 hover:text-red-200 hover:border-red-500/40 transition-all duration-300 font-medium"
+              className="w-full border-white/30 text-white hover:bg-red-500/20 hover:text-red-200 hover:border-red-500/40 transition-all duration-300 font-medium"
               onClick={() => {
                 localStorage.removeItem('currentUser');
                 toast({
@@ -200,7 +200,7 @@ const Profile = () => {
         </Card>
         
         <div className="text-center mt-8">
-          <p className="text-white text-xs">
+          <p className="text-white/80 text-xs">
             © 2025 SapidFood. جميع الحقوق محفوظة.
           </p>
         </div>
