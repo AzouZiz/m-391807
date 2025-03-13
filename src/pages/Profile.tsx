@@ -92,7 +92,7 @@ const Profile = () => {
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-800 to-blue-900 flex items-center justify-center">
         <Card className="w-full max-w-md p-6 metaverse-card">
           <div className="text-center">
-            <p className="text-white text-lg">جاري تحميل الملف الشخصي...</p>
+            <p className="text-white text-lg font-medium">جاري تحميل الملف الشخصي...</p>
           </div>
         </Card>
       </div>
@@ -107,7 +107,7 @@ const Profile = () => {
             <ChefHat className="h-10 w-10 text-white glow-effect" />
             <span className="text-3xl font-bold text-white">SapidFood</span>
           </div>
-          <p className="text-white/80">منصة تجربة الطعام المدعومة بالذكاء الاصطناعي</p>
+          <p className="text-white text-base">منصة تجربة الطعام المدعومة بالذكاء الاصطناعي</p>
         </div>
         
         <Card className="metaverse-card p-6">
@@ -119,9 +119,9 @@ const Profile = () => {
                 onClick={() => navigate('/dashboard')}
               >
                 <ArrowLeft className="h-5 w-5 mr-1" />
-                العودة
+                <span className="text-white font-medium">العودة</span>
               </Button>
-              <h1 className="text-2xl font-bold text-gradient">الملف الشخصي</h1>
+              <h1 className="text-2xl font-bold text-white">الملف الشخصي</h1>
             </div>
           </CardHeader>
           
@@ -138,20 +138,20 @@ const Profile = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-white">الاسم الكامل</Label>
+                <Label htmlFor="name" className="text-white font-medium">الاسم الكامل</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70 h-4 w-4" />
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white h-4 w-4" />
                   <Input 
                     id="name" 
                     type="text" 
                     placeholder="أدخل اسمك الكامل" 
-                    className="metaverse-input pl-10 text-white"
+                    className="metaverse-input pl-10 text-white bg-white/10"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
                 {errors.name && (
-                  <p className="text-red-400 text-sm flex items-center mt-1">
+                  <p className="text-red-300 text-sm flex items-center mt-1 font-medium">
                     <AlertCircle className="h-3 w-3 mr-1" />
                     {errors.name}
                   </p>
@@ -159,21 +159,21 @@ const Profile = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">البريد الإلكتروني</Label>
+                <Label htmlFor="email" className="text-white font-medium">البريد الإلكتروني</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70 h-4 w-4" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white h-4 w-4" />
                   <Input 
                     id="email" 
                     type="email" 
                     value={user?.email}
                     readOnly
-                    className="metaverse-input pl-10 text-white bg-white/5 cursor-not-allowed"
+                    className="metaverse-input pl-10 text-white bg-white/10 opacity-80 cursor-not-allowed"
                   />
                 </div>
-                <p className="text-white/60 text-xs">لا يمكن تغيير البريد الإلكتروني</p>
+                <p className="text-white text-xs">لا يمكن تغيير البريد الإلكتروني</p>
               </div>
             
-              <Button type="submit" className="metaverse-button w-full mt-6">
+              <Button type="submit" className="metaverse-button w-full mt-6 text-white font-medium">
                 <Save className="mr-2 h-4 w-4" />
                 حفظ التغييرات
               </Button>
@@ -184,7 +184,7 @@ const Profile = () => {
             <Separator className="bg-white/10 mb-6" />
             <Button 
               variant="outline" 
-              className="w-full border-white/20 text-white hover:bg-red-500/20 hover:text-red-200 hover:border-red-500/40 transition-all duration-300"
+              className="w-full border-white/20 text-white hover:bg-red-500/20 hover:text-red-200 hover:border-red-500/40 transition-all duration-300 font-medium"
               onClick={() => {
                 localStorage.removeItem('currentUser');
                 toast({
@@ -200,7 +200,7 @@ const Profile = () => {
         </Card>
         
         <div className="text-center mt-8">
-          <p className="text-white/60 text-xs">
+          <p className="text-white text-xs">
             © 2025 SapidFood. جميع الحقوق محفوظة.
           </p>
         </div>
