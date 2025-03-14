@@ -1,267 +1,433 @@
 
-import React, { useState } from 'react';
-import { Flame, Filter, Search, BarChart2, Star, Coffee, UtensilsCrossed, Clock, Tag } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Filter, ChefHat, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { toast } from '@/hooks/use-toast';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
+interface Recipe {
+  id: string;
+  title: string;
+  image: string;
+  description: string;
+  category: string;
+  difficulty: string;
+  time: string;
+  ingredients: string[];
+  cuisine: string;
+}
 
 const Explore = () => {
-  const [activeFilter, setActiveFilter] = useState('all');
-
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
+  const [selectedCuisine, setSelectedCuisine] = useState<string>('all');
+  const [selectedTime, setSelectedTime] = useState<string>('all');
+  
+  // Filter options
+  const categories = ['أطباق رئيسية', 'مقبلات', 'حلويات', 'مشروبات', 'شوربات', 'سلطات'];
+  const difficulties = ['سهل', 'متوسط', 'صعب'];
+  const cuisines = ['عربية', 'إيطالية', 'هندية', 'تركية', 'مكسيكية', 'صينية', 'لبنانية'];
+  const timeRanges = ['أقل من 30 دقيقة', '30-60 دقيقة', 'أكثر من 60 دقيقة'];
+  
+  useEffect(() => {
+    // في تطبيق حقيقي، ستقوم بإحضار البيانات من API
+    const mockRecipes: Recipe[] = [
+      {
+        id: '1',
+        title: 'كنافة نابلسية تقليدية',
+        image: 'https://images.unsplash.com/photo-1579888944880-d98341245702?auto=format&fit=crop&q=80&w=2070',
+        description: 'حلوى شرقية مشهورة ولذيذة مع عجينة الكنافة والقطر والجبنة',
+        category: 'حلويات',
+        difficulty: 'متوسط',
+        time: '45 دقيقة',
+        ingredients: ['عجينة كنافة', 'جبنة عكاوي', 'سمن', 'ماء زهر', 'سكر', 'ماء'],
+        cuisine: 'عربية'
+      },
+      {
+        id: '2',
+        title: 'كبسة لحم سعودية تقليدية',
+        image: 'https://images.unsplash.com/photo-1590577976322-3d2d6e2130d5?auto=format&fit=crop&q=80&w=2070',
+        description: 'طبق أرز غني باللحم والتوابل على الطريقة السعودية الأصيلة',
+        category: 'أطباق رئيسية',
+        difficulty: 'سهل',
+        time: '60 دقيقة',
+        ingredients: ['أرز بسمتي', 'لحم ضأن', 'بصل', 'طماطم', 'ثوم', 'بهارات كبسة', 'زيت'],
+        cuisine: 'عربية'
+      },
+      {
+        id: '3',
+        title: 'تبولة لبنانية',
+        image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&q=80&w=2072',
+        description: 'سلطة طازجة من البقدونس والبرغل والطماطم والخضروات',
+        category: 'سلطات',
+        difficulty: 'سهل',
+        time: '20 دقيقة',
+        ingredients: ['بقدونس', 'برغل ناعم', 'طماطم', 'خيار', 'بصل أخضر', 'نعناع', 'زيت زيتون', 'ليمون'],
+        cuisine: 'لبنانية'
+      },
+      {
+        id: '4',
+        title: 'مقلوبة فلسطينية',
+        image: 'https://images.unsplash.com/photo-1695438272113-f86c6dae77c1?auto=format&fit=crop&q=80&w=1951',
+        description: 'طبق أرز شهي مع الخضار والدجاج على الطريقة الفلسطينية',
+        category: 'أطباق رئيسية',
+        difficulty: 'متوسط',
+        time: '75 دقيقة',
+        ingredients: ['أرز', 'دجاج', 'باذنجان', 'بطاطا', 'قرنبيط', 'بهارات', 'زيت'],
+        cuisine: 'عربية'
+      },
+      {
+        id: '5',
+        title: 'باستا بولونيز الإيطالية',
+        image: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&q=80&w=2070',
+        description: 'معكرونة إيطالية كلاسيكية مع صلصة اللحم المفروم الغنية',
+        category: 'أطباق رئيسية',
+        difficulty: 'سهل',
+        time: '40 دقيقة',
+        ingredients: ['معكرونة سباغيتي', 'لحم مفروم', 'طماطم', 'بصل', 'ثوم', 'جزر', 'كرفس', 'أعشاب'],
+        cuisine: 'إيطالية'
+      },
+      {
+        id: '6',
+        title: 'كاري دجاج هندي',
+        image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&q=80&w=1971',
+        description: 'طبق هندي تقليدي من الدجاج بصلصة الكاري الغنية',
+        category: 'أطباق رئيسية',
+        difficulty: 'متوسط',
+        time: '50 دقيقة',
+        ingredients: ['دجاج', 'بصل', 'ثوم', 'زنجبيل', 'طماطم', 'بهارات كاري', 'كريمة', 'زيت'],
+        cuisine: 'هندية'
+      },
+      {
+        id: '7',
+        title: 'كنافة تركية بالجبن',
+        image: 'https://images.unsplash.com/photo-1600617611788-2eafcfae5a4d?auto=format&fit=crop&q=80&w=2070',
+        description: 'حلوى تركية تقليدية مصنوعة من عجينة الكنافة والجبن والقطر',
+        category: 'حلويات',
+        difficulty: 'متوسط',
+        time: '35 دقيقة',
+        ingredients: ['عجينة كنافة', 'جبنة', 'زبدة', 'قطر', 'فستق حلبي'],
+        cuisine: 'تركية'
+      },
+      {
+        id: '8',
+        title: 'تاكو مكسيكي تقليدي',
+        image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=2070',
+        description: 'وجبة مكسيكية شهيرة محضرة من خبز التورتيلا محشو باللحم والخضار والصلصة',
+        category: 'أطباق رئيسية',
+        difficulty: 'سهل',
+        time: '30 دقيقة',
+        ingredients: ['تورتيلا', 'لحم مفروم', 'طماطم', 'بصل', 'فلفل حار', 'جبنة', 'أفوكادو', 'كزبرة'],
+        cuisine: 'مكسيكية'
+      }
+    ];
+    
+    setRecipes(mockRecipes);
+    setFilteredRecipes(mockRecipes);
+  }, []);
+  
+  useEffect(() => {
+    applyFilters();
+  }, [searchTerm, selectedCategory, selectedDifficulty, selectedCuisine, selectedTime]);
+  
+  const applyFilters = () => {
+    let filtered = [...recipes];
+    
+    // تطبيق البحث
+    if (searchTerm.trim() !== '') {
+      filtered = filtered.filter(recipe => 
+        recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        recipe.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        recipe.ingredients.some(ing => ing.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+    
+    // تطبيق التصفية حسب الفئة
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(recipe => recipe.category === selectedCategory);
+    }
+    
+    // تطبيق التصفية حسب الصعوبة
+    if (selectedDifficulty !== 'all') {
+      filtered = filtered.filter(recipe => recipe.difficulty === selectedDifficulty);
+    }
+    
+    // تطبيق التصفية حسب المطبخ
+    if (selectedCuisine !== 'all') {
+      filtered = filtered.filter(recipe => recipe.cuisine === selectedCuisine);
+    }
+    
+    // تطبيق التصفية حسب الوقت
+    if (selectedTime !== 'all') {
+      if (selectedTime === 'أقل من 30 دقيقة') {
+        filtered = filtered.filter(recipe => {
+          const minutes = parseInt(recipe.time.split(' ')[0]);
+          return minutes < 30;
+        });
+      } else if (selectedTime === '30-60 دقيقة') {
+        filtered = filtered.filter(recipe => {
+          const minutes = parseInt(recipe.time.split(' ')[0]);
+          return minutes >= 30 && minutes <= 60;
+        });
+      } else if (selectedTime === 'أكثر من 60 دقيقة') {
+        filtered = filtered.filter(recipe => {
+          const minutes = parseInt(recipe.time.split(' ')[0]);
+          return minutes > 60;
+        });
+      }
+    }
+    
+    setFilteredRecipes(filtered);
+  };
+  
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    applyFilters();
+    
+    if (filteredRecipes.length === 0) {
+      toast({
+        title: "لا توجد نتائج",
+        description: "لم يتم العثور على وصفات تطابق معايير البحث.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const resetFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('all');
+    setSelectedDifficulty('all');
+    setSelectedCuisine('all');
+    setSelectedTime('all');
+    setFilteredRecipes(recipes);
+    
+    toast({
+      title: "تم إعادة ضبط الفلاتر",
+      description: "تم إعادة تعيين جميع عوامل التصفية.",
+    });
+  };
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary text-foreground p-4">
-      <div className="container mx-auto">
-        <h1 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Explore Recipes</h1>
-
-        <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-2">
-          <div className="flex items-center w-full md:w-auto">
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input type="search" placeholder="Search for a recipe..." className="pl-10 metaverse-input" />
-            </div>
-            <Button variant="outline" className="ml-2 hover:bg-primary/10 hover:text-primary">
-              <Search className="w-4 h-4 mr-2" />
-              Search
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2 mt-4 md:mt-0">
-            <Button variant="secondary" className="hover:bg-accent/10 hover:text-accent">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            <Button className="bg-gradient-to-r from-primary to-accent text-white">
-              <BarChart2 className="w-4 h-4 mr-2" />
-              Analytics
-            </Button>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900/90 via-indigo-800/90 to-blue-900/90">
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex items-center justify-between mb-8">
+          <Button 
+            variant="ghost" 
+            className="text-white hover:bg-white/20"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            العودة
+          </Button>
+          
+          <div className="flex items-center">
+            <ChefHat className="h-8 w-8 text-white mr-2 glow-effect" />
+            <h1 className="text-2xl font-bold text-white">استكشاف الوصفات</h1>
           </div>
         </div>
-
-        <div className="flex items-center justify-start gap-2 mb-6 overflow-x-auto py-2">
-          <Button 
-            variant={activeFilter === 'all' ? "default" : "outline"} 
-            onClick={() => setActiveFilter('all')}
-            className={activeFilter === 'all' ? "bg-gradient-to-r from-primary to-accent text-white" : ""}
-          >
-            All
-          </Button>
-          <Button 
-            variant={activeFilter === 'popular' ? "default" : "outline"} 
-            onClick={() => setActiveFilter('popular')}
-            className={activeFilter === 'popular' ? "bg-gradient-to-r from-primary to-accent text-white" : ""}
-          >
-            <Flame className="w-4 h-4 mr-2" />
-            Popular
-          </Button>
-          <Button 
-            variant={activeFilter === 'vegetarian' ? "default" : "outline"} 
-            onClick={() => setActiveFilter('vegetarian')}
-            className={activeFilter === 'vegetarian' ? "bg-gradient-to-r from-primary to-accent text-white" : ""}
-          >
-            <UtensilsCrossed className="w-4 h-4 mr-2" />
-            Vegetarian
-          </Button>
-          <Button 
-            variant={activeFilter === 'quick' ? "default" : "outline"} 
-            onClick={() => setActiveFilter('quick')}
-            className={activeFilter === 'quick' ? "bg-gradient-to-r from-primary to-accent text-white" : ""}
-          >
-            <Clock className="w-4 h-4 mr-2" />
-            Quick & Easy
-          </Button>
+        
+        {/* Search Section */}
+        <Card className="mb-8 neo-card">
+          <CardContent className="p-6">
+            <form onSubmit={handleSearch} className="flex flex-col lg:flex-row gap-4">
+              <div className="relative flex-grow">
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
+                <Input
+                  placeholder="ابحث عن وصفات، مكونات، أو نصائح..."
+                  className="pr-10 text-right bg-white/90"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="gap-1.5 bg-white/90"
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                >
+                  <Filter className="h-4 w-4" />
+                  الفلاتر
+                </Button>
+                <Button type="submit" className="neo-button flex-shrink-0">
+                  بحث
+                </Button>
+              </div>
+            </form>
+            
+            <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+              <CollapsibleContent className="mt-4 pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div>
+                    <Label className="text-white mb-2 block">الفئة</Label>
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                      <SelectTrigger className="bg-white/90 text-right">
+                        <SelectValue placeholder="جميع الفئات" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">جميع الفئات</SelectItem>
+                        {categories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-white mb-2 block">مستوى الصعوبة</Label>
+                    <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+                      <SelectTrigger className="bg-white/90 text-right">
+                        <SelectValue placeholder="جميع المستويات" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">جميع المستويات</SelectItem>
+                        {difficulties.map((difficulty) => (
+                          <SelectItem key={difficulty} value={difficulty}>
+                            {difficulty}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-white mb-2 block">المطبخ</Label>
+                    <Select value={selectedCuisine} onValueChange={setSelectedCuisine}>
+                      <SelectTrigger className="bg-white/90 text-right">
+                        <SelectValue placeholder="جميع المطابخ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">جميع المطابخ</SelectItem>
+                        {cuisines.map((cuisine) => (
+                          <SelectItem key={cuisine} value={cuisine}>
+                            {cuisine}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-white mb-2 block">وقت التحضير</Label>
+                    <Select value={selectedTime} onValueChange={setSelectedTime}>
+                      <SelectTrigger className="bg-white/90 text-right">
+                        <SelectValue placeholder="جميع الأوقات" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">جميع الأوقات</SelectItem>
+                        {timeRanges.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="flex justify-center mt-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={resetFilters}
+                    className="border-white/70 text-white hover:bg-white/10"
+                  >
+                    إعادة ضبط الفلاتر
+                  </Button>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </CardContent>
+        </Card>
+        
+        {/* Recipe Results */}
+        <div className="mb-4">
+          <p className="text-white/90">
+            عدد النتائج: <span className="font-bold">{filteredRecipes.length}</span>
+          </p>
         </div>
-
-        <Separator className="mb-8" />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Recipe Cards */}
-          <Card className="recipe-card hover-scale overflow-hidden metaverse-card">
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1565299507177-b0ac66763828?q=80&w=2122&auto=format&fit=crop" 
-                alt="Saudi Kabsa" 
-                className="recipe-image hover:scale-110 transition-transform duration-300" 
-              />
-              <div className="absolute top-2 right-2">
-                <Badge className="bg-gradient-to-r from-primary to-accent text-white">
-                  <Star className="w-3 h-3 mr-1" /> 4.8
-                </Badge>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredRecipes.map((recipe) => (
+            <Card key={recipe.id} className="recipe-card overflow-hidden hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
+              <div className="relative h-48 overflow-hidden">
+                <img 
+                  src={recipe.image} 
+                  alt={recipe.title} 
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                />
+                <div className="absolute top-2 right-2">
+                  <span className="micro-chip bg-white/80 text-primary">
+                    {recipe.category}
+                  </span>
+                </div>
               </div>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs font-medium px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
+                    {recipe.cuisine}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm text-gray-600">{recipe.time}</span>
+                  </div>
+                </div>
+                <h3 className="font-bold text-lg mb-2">{recipe.title}</h3>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{recipe.description}</p>
+                <div className="flex justify-between items-center">
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    recipe.difficulty === 'سهل' ? 'bg-green-100 text-green-800' :
+                    recipe.difficulty === 'متوسط' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {recipe.difficulty}
+                  </span>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/recipe/${recipe.id}`)}
+                  >
+                    عرض الوصفة
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          
+          {filteredRecipes.length === 0 && (
+            <div className="col-span-full flex flex-col items-center justify-center p-10 bg-white/10 backdrop-blur-md rounded-lg">
+              <Search className="h-16 w-16 text-white/30 mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">لا توجد نتائج</h3>
+              <p className="text-white/70 text-center mb-4">
+                لم نتمكن من العثور على وصفات تطابق معايير البحث الخاصة بك.
+              </p>
+              <Button 
+                variant="outline"
+                onClick={resetFilters}
+                className="border-white/70 text-white hover:bg-white/10"
+              >
+                إعادة ضبط الفلاتر
+              </Button>
             </div>
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-semibold">Saudi Kabsa</h2>
-                <Badge variant="outline" className="text-primary border-primary/30">
-                  <Clock className="w-3 h-3 mr-1" /> 45 min
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">Traditional rice and meat dish from Saudi Arabia with aromatic spices and slow-cooked tenderness.</p>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="bg-primary/10 text-primary">
-                  <Tag className="w-3 h-3 mr-1" /> Middle Eastern
-                </Badge>
-                <Button variant="ghost" className="text-primary hover:bg-primary/10">View Recipe</Button>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="recipe-card hover-scale overflow-hidden metaverse-card">
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=2072&auto=format&fit=crop" 
-                alt="Yemeni Mandi" 
-                className="recipe-image hover:scale-110 transition-transform duration-300" 
-              />
-              <div className="absolute top-2 right-2">
-                <Badge className="bg-gradient-to-r from-primary to-accent text-white">
-                  <Star className="w-3 h-3 mr-1" /> 4.6
-                </Badge>
-              </div>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-semibold">Yemeni Mandi</h2>
-                <Badge variant="outline" className="text-primary border-primary/30">
-                  <Clock className="w-3 h-3 mr-1" /> 60 min
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">Famous smoked meat and rice dish from Yemen with a unique smoky flavor and tender meat.</p>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="bg-primary/10 text-primary">
-                  <Tag className="w-3 h-3 mr-1" /> Middle Eastern
-                </Badge>
-                <Button variant="ghost" className="text-primary hover:bg-primary/10">View Recipe</Button>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="recipe-card hover-scale overflow-hidden metaverse-card">
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1633877752148-3068b8ba0283?q=80&w=2070&auto=format&fit=crop" 
-                alt="Indian Biryani" 
-                className="recipe-image hover:scale-110 transition-transform duration-300" 
-              />
-              <div className="absolute top-2 right-2">
-                <Badge className="bg-gradient-to-r from-primary to-accent text-white">
-                  <Star className="w-3 h-3 mr-1" /> 4.9
-                </Badge>
-              </div>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-semibold">Indian Biryani</h2>
-                <Badge variant="outline" className="text-primary border-primary/30">
-                  <Clock className="w-3 h-3 mr-1" /> 55 min
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">Fragrant layered rice dish from the Indian subcontinent with aromatic spices and tender meat.</p>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="bg-primary/10 text-primary">
-                  <Tag className="w-3 h-3 mr-1" /> Indian
-                </Badge>
-                <Button variant="ghost" className="text-primary hover:bg-primary/10">View Recipe</Button>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="recipe-card hover-scale overflow-hidden metaverse-card">
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070&auto=format&fit=crop" 
-                alt="Authentic Pizza" 
-                className="recipe-image hover:scale-110 transition-transform duration-300" 
-              />
-              <div className="absolute top-2 right-2">
-                <Badge className="bg-gradient-to-r from-primary to-accent text-white">
-                  <Star className="w-3 h-3 mr-1" /> 4.7
-                </Badge>
-              </div>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-semibold">Authentic Pizza</h2>
-                <Badge variant="outline" className="text-primary border-primary/30">
-                  <Clock className="w-3 h-3 mr-1" /> 30 min
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">Traditional Italian pizza with thin crust, San Marzano tomatoes, fresh mozzarella, and basil.</p>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="bg-primary/10 text-primary">
-                  <Tag className="w-3 h-3 mr-1" /> Italian
-                </Badge>
-                <Button variant="ghost" className="text-primary hover:bg-primary/10">View Recipe</Button>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="recipe-card hover-scale overflow-hidden metaverse-card">
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1543826173-70651703c5a4?q=80&w=2070&auto=format&fit=crop" 
-                alt="Sushi Rolls" 
-                className="recipe-image hover:scale-110 transition-transform duration-300" 
-              />
-              <div className="absolute top-2 right-2">
-                <Badge className="bg-gradient-to-r from-primary to-accent text-white">
-                  <Star className="w-3 h-3 mr-1" /> 4.5
-                </Badge>
-              </div>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-semibold">Sushi Rolls</h2>
-                <Badge variant="outline" className="text-primary border-primary/30">
-                  <Clock className="w-3 h-3 mr-1" /> 40 min
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">Japanese delicacy featuring vinegared rice, fresh fish, and vegetables wrapped in seaweed.</p>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="bg-primary/10 text-primary">
-                  <Tag className="w-3 h-3 mr-1" /> Japanese
-                </Badge>
-                <Button variant="ghost" className="text-primary hover:bg-primary/10">View Recipe</Button>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="recipe-card hover-scale overflow-hidden metaverse-card">
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=2032&auto=format&fit=crop" 
-                alt="Colorful Salad" 
-                className="recipe-image hover:scale-110 transition-transform duration-300" 
-              />
-              <div className="absolute top-2 right-2">
-                <Badge className="bg-gradient-to-r from-primary to-accent text-white">
-                  <Star className="w-3 h-3 mr-1" /> 4.3
-                </Badge>
-              </div>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-semibold">Colorful Salad</h2>
-                <Badge variant="outline" className="text-primary border-primary/30">
-                  <Clock className="w-3 h-3 mr-1" /> 15 min
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">Refreshing mix of seasonal vegetables, fruits, and superfoods with a light tangy dressing.</p>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="bg-primary/10 text-primary">
-                  <Tag className="w-3 h-3 mr-1" /> Vegetarian
-                </Badge>
-                <Button variant="ghost" className="text-primary hover:bg-primary/10">View Recipe</Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        <div className="mt-12 text-center">
-          <Button className="bg-gradient-to-r from-primary to-accent text-white px-8 py-6 rounded-full text-lg">
-            Load More Recipes
-          </Button>
+          )}
         </div>
       </div>
     </div>

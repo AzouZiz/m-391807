@@ -1,217 +1,491 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  Clock, 
-  Users, 
-  Flame, 
-  ChefHat, 
-  Star, 
-  Bookmark, 
-  Share, 
-  ThumbsUp,
-  View, 
-  MessageSquare, 
-  Award,
-  Printer 
+  ArrowLeft, Clock, ChefHat, Users, Printer, 
+  BookmarkPlus, Share2, Star, StarHalf, ThumbsUp,
+  AlertCircle, Info
 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Avatar } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from '@/components/ui/tabs';
+import { toast } from '@/hooks/use-toast';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+interface Recipe {
+  id: string;
+  title: string;
+  image: string;
+  description: string;
+  category: string;
+  difficulty: string;
+  prepTime: string;
+  cookTime: string;
+  servings: number;
+  ingredients: string[];
+  instructions: string[];
+  nutrition: {
+    calories: string;
+    protein: string;
+    carbs: string;
+    fats: string;
+  };
+  tips: string[];
+  cuisine: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  rating: number;
+  reviews: number;
+}
 
 const RecipeDetail = () => {
-  // Replace this with actual data fetching logic
   const { id } = useParams<{ id: string }>();
-  const recipe = {
-    id: id,
-    title: "Delicious Chocolate Cake",
-    imageUrl: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    prepTime: "20 mins",
-    cookTime: "35 mins",
-    servings: "8 servings",
-    author: "Jane Doe",
-    authorAvatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    likes: 124,
-    views: 530,
-    shares: 68,
-    rating: 4.7,
-    reviewCount: 89,
-    ingredients: [
-      "2 cups all-purpose flour",
-      "2 cups sugar",
-      "¾ cup unsweetened cocoa powder",
-      "1 ½ teaspoons baking powder",
-      "1 ½ teaspoons baking soda",
-      "1 teaspoon salt",
-      "1 cup buttermilk",
-      "½ cup vegetable oil",
-      "2 large eggs",
-      "2 teaspoons vanilla extract",
-      "1 cup boiling water"
-    ],
-    instructions: [
-      "Preheat oven to 350°F (175°C). Grease and flour a 9x13 inch pan.",
-      "In a large bowl, whisk together flour, sugar, cocoa, baking powder, baking soda, and salt.",
-      "Add buttermilk, oil, eggs, and vanilla extract to the dry ingredients. Beat with an electric mixer on medium speed for 2 minutes.",
-      "Stir in boiling water (batter will be thin).",
-      "Pour batter into prepared pan and bake for 30-35 minutes, or until a wooden skewer inserted into the center comes out clean.",
-      "Let cool in the pan for 10 minutes before frosting."
-    ],
-    nutrition: {
-      calories: "350 kcal",
-      carbohydrates: "50g",
-      protein: "5g",
-      fat: "15g"
-    },
-    reviews: [
-      {
-        id: "1",
-        author: "Alice Smith",
-        avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b8d21c?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        rating: 5,
-        comment: "This cake is absolutely divine! The best chocolate cake I've ever made.",
-        date: "2 days ago"
-      },
-      {
-        id: "2",
-        author: "Bob Johnson",
-        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd8b401e0?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        rating: 4,
-        comment: "Very good recipe. I reduced the sugar a bit and it was perfect for my taste.",
-        date: "5 days ago"
-      }
-    ]
+  const navigate = useNavigate();
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [servings, setServings] = useState(4);
+  const [saved, setSaved] = useState(false);
+  
+  useEffect(() => {
+    // Simulate API fetch
+    const fetchRecipe = () => {
+      setLoading(true);
+      
+      // Mock recipe data based on ID
+      setTimeout(() => {
+        // In a real app, this would be an API call
+        const mockRecipe: Recipe = {
+          id: id || '1',
+          title: 'كنافة نابلسية تقليدية',
+          image: 'https://images.unsplash.com/photo-1579888944880-d98341245702?auto=format&fit=crop&q=80&w=2070',
+          description: 'حلوى شرقية مشهورة ولذيذة مع عجينة الكنافة والقطر والجبنة. تُعتبر من أشهر الحلويات في بلاد الشام وخاصة في فلسطين.',
+          category: 'حلويات',
+          difficulty: 'متوسط',
+          prepTime: '20 دقيقة',
+          cookTime: '25 دقيقة',
+          servings: 4,
+          ingredients: [
+            '500 غرام عجينة كنافة',
+            '300 غرام جبنة عكاوي منزوعة الملح',
+            '200 غرام سمن عربي',
+            '2 ملعقة طعام ماء زهر',
+            '2 كوب سكر',
+            '1 كوب ماء',
+            '1 ملعقة صغيرة عصير ليمون',
+            'فستق حلبي للتزيين'
+          ],
+          instructions: [
+            'نقوم بفرد نصف كمية العجينة في صينية دائرية.',
+            'نضيف الجبنة فوق العجينة ونفردها بالتساوي.',
+            'نغطي الجبنة بالنصف المتبقي من العجينة.',
+            'نصب السمن المذاب فوق العجينة ونوزعه بالتساوي.',
+            'نخبز في فرن حرارته 180 درجة مئوية لمدة 25 دقيقة حتى تصبح ذهبية اللون.',
+            'لتحضير القطر: نضع الماء والسكر في قدر على النار ونتركه يغلي لمدة 10 دقائق.',
+            'نضيف ماء الزهر وعصير الليمون ونتركه يغلي لدقيقة إضافية ثم نرفعه عن النار.',
+            'بعد إخراج الكنافة من الفرن، نقلبها في طبق التقديم ونسكب القطر فوقها.',
+            'نزين بالفستق الحلبي ونقدمها ساخنة أو باردة حسب الرغبة.'
+          ],
+          nutrition: {
+            calories: '385 سعرة حرارية',
+            protein: '8 غرام',
+            carbs: '45 غرام',
+            fats: '21 غرام'
+          },
+          tips: [
+            'يمكن استخدام جبنة الموزاريلا بدلاً من العكاوي.',
+            'تأكد من أن العجينة مفكوكة قبل استخدامها للحصول على أفضل نتيجة.',
+            'يجب أن يكون القطر بارداً عند سكبه فوق الكنافة الساخنة.'
+          ],
+          cuisine: 'عربية',
+          author: {
+            name: 'سارة أحمد',
+            avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=1470'
+          },
+          rating: 4.7,
+          reviews: 125
+        };
+        
+        setRecipe(mockRecipe);
+        setServings(mockRecipe.servings);
+        setLoading(false);
+      }, 1000);
+    };
+    
+    fetchRecipe();
+  }, [id]);
+  
+  const handlePrint = () => {
+    window.print();
   };
-
+  
+  const handleSaveRecipe = () => {
+    setSaved(!saved);
+    
+    if (!saved) {
+      toast({
+        title: "تم حفظ الوصفة",
+        description: "تمت إضافة الوصفة إلى المفضلة بنجاح.",
+      });
+    } else {
+      toast({
+        title: "تم إزالة الوصفة",
+        description: "تمت إزالة الوصفة من المفضلة."
+      });
+    }
+  };
+  
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: recipe?.title,
+        text: recipe?.description,
+        url: window.location.href,
+      }).catch((error) => {
+        console.error('Error sharing:', error);
+      });
+    } else {
+      // Fallback
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "تم نسخ الرابط",
+        description: "تم نسخ رابط الوصفة إلى الحافظة.",
+      });
+    }
+  };
+  
+  const renderRatingStars = (rating: number) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating - fullStars >= 0.5;
+    const stars = [];
+    
+    for (let i = 1; i <= 5; i++) {
+      if (i <= fullStars) {
+        stars.push(<Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />);
+      } else if (i === fullStars + 1 && hasHalfStar) {
+        stars.push(<StarHalf key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />);
+      } else {
+        stars.push(<Star key={i} className="h-5 w-5 text-gray-300" />);
+      }
+    }
+    
+    return <div className="flex">{stars}</div>;
+  };
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-800 to-blue-900 flex items-center justify-center">
+        <Card className="w-full max-w-md p-6 bg-white/20 backdrop-blur-lg border border-white/30">
+          <div className="text-center">
+            <ChefHat className="h-12 w-12 text-white mx-auto mb-4 animate-pulse" />
+            <p className="text-white text-lg font-medium">جاري تحميل الوصفة...</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+  
+  if (!recipe) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-800 to-blue-900 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-6 bg-white/20 backdrop-blur-lg border border-white/30">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-white mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-2">لم يتم العثور على الوصفة</h2>
+            <p className="text-white/80 mb-6">
+              عذراً، لم نتمكن من العثور على الوصفة التي تبحث عنها.
+            </p>
+            <Button onClick={() => navigate('/explore')} className="metaverse-button">
+              استكشاف وصفات أخرى
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+  
   return (
-    <div className="container py-12">
-      <Card className="overflow-hidden">
-        <img src={recipe.imageUrl} alt={recipe.title} className="aspect-video w-full object-cover" />
-        <div className="p-6">
-          <h1 className="text-3xl font-bold mb-4">{recipe.title}</h1>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              Prep: {recipe.prepTime}
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Flame className="h-4 w-4" />
-              Cook: {recipe.cookTime}
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Users className="h-4 w-4" />
-              {recipe.servings}
-            </div>
-          </div>
-
-          <Separator className="my-4" />
-
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Avatar>
-                <img src={recipe.authorAvatarUrl} alt={recipe.author} className="rounded-full" />
-              </Avatar>
-              <div className="text-sm">
-                By {recipe.author}
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" size="icon">
-                <Bookmark className="h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <Share className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-
-          <Separator className="my-4" />
-
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <div className="flex items-center gap-1">
-                <Star className="h-5 w-5 text-yellow-500" />
-                <span className="font-bold">{recipe.rating}</span>
-                <span className="text-muted-foreground">({recipe.reviewCount} reviews)</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <ThumbsUp className="h-4 w-4" />
-                {recipe.likes}
-              </div>
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <View className="h-4 w-4" />
-                {recipe.views}
-              </div>
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <MessageSquare className="h-4 w-4" />
-                {recipe.shares}
-              </div>
-            </div>
-          </div>
-
-          <Separator className="my-4" />
-
-          <Tabs defaultValue="ingredients" className="w-full">
-            <TabsList>
-              <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
-              <TabsTrigger value="instructions">Instructions</TabsTrigger>
-              <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews</TabsTrigger>
-            </TabsList>
-            <TabsContent value="ingredients">
-              <h2 className="text-2xl font-bold mb-2">Ingredients</h2>
-              <ul className="list-disc list-inside">
-                {recipe.ingredients.map((ingredient, index) => (
-                  <li key={index}>{ingredient}</li>
-                ))}
-              </ul>
-            </TabsContent>
-            <TabsContent value="instructions">
-              <h2 className="text-2xl font-bold mb-2">Instructions</h2>
-              <ol className="list-decimal list-inside">
-                {recipe.instructions.map((instruction, index) => (
-                  <li key={index}>{instruction}</li>
-                ))}
-              </ol>
-            </TabsContent>
-            <TabsContent value="nutrition">
-              <h2 className="text-2xl font-bold mb-2">Nutrition Facts</h2>
-              <p>Calories: {recipe.nutrition.calories}</p>
-              <p>Carbohydrates: {recipe.nutrition.carbohydrates}</p>
-              <p>Protein: {recipe.nutrition.protein}</p>
-              <p>Fat: {recipe.nutrition.fat}</p>
-            </TabsContent>
-            <TabsContent value="reviews">
-              <h2 className="text-2xl font-bold mb-2">Reviews</h2>
-              {recipe.reviews.map(review => (
-                <Card key={review.id} className="mb-4">
-                  <div className="flex items-start gap-4 p-4">
-                    <Avatar>
-                      <img src={review.avatarUrl} alt={review.author} className="rounded-full" />
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold">{review.author}</span>
-                        <div className="flex items-center gap-1">
-                          {[...Array(review.rating)].map((_, i) => (
-                            <Star key={i} className="h-4 w-4 text-yellow-500" />
-                          ))}
-                        </div>
-                        <span className="text-muted-foreground text-sm">{review.date}</span>
-                      </div>
-                      <p>{review.comment}</p>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900/90 via-indigo-800/90 to-blue-900/90">
+      <div className="container mx-auto py-8 px-4">
+        <Button 
+          variant="ghost" 
+          className="text-white hover:bg-white/20 mb-6"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          العودة
+        </Button>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            <Card className="metaverse-card overflow-hidden mb-8">
+              {/* Recipe Header */}
+              <div className="relative h-[300px] sm:h-[400px]">
+                <img 
+                  src={recipe.image} 
+                  alt={recipe.title} 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="flex items-center mb-2">
+                    <span className="micro-chip">{recipe.category}</span>
+                    <span className="micro-chip mr-2">{recipe.cuisine}</span>
+                  </div>
+                  <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">{recipe.title}</h1>
+                  <div className="flex items-center flex-wrap gap-2">
+                    <div className="flex items-center">
+                      {renderRatingStars(recipe.rating)}
+                      <span className="text-white mr-2">({recipe.reviews} تقييم)</span>
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm flex items-center">
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span>
+                        {parseInt(recipe.prepTime) + parseInt(recipe.cookTime)} دقيقة
+                      </span>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-sm flex items-center ${
+                      recipe.difficulty === 'سهل' ? 'bg-green-500/80 text-white' :
+                      recipe.difficulty === 'متوسط' ? 'bg-yellow-500/80 text-white' :
+                      'bg-red-500/80 text-white'
+                    }`}>
+                      {recipe.difficulty}
                     </div>
                   </div>
-                </Card>
-              ))}
-            </TabsContent>
-          </Tabs>
+                </div>
+              </div>
+              
+              {/* Recipe Description */}
+              <div className="p-6">
+                <p className="text-gray-700 mb-6">
+                  {recipe.description}
+                </p>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                  <div className="bg-primary/10 p-4 rounded-lg flex flex-col items-center">
+                    <Clock className="h-5 w-5 text-primary mb-1" />
+                    <span className="text-sm text-gray-500">وقت التحضير</span>
+                    <span className="font-medium">{recipe.prepTime}</span>
+                  </div>
+                  <div className="bg-primary/10 p-4 rounded-lg flex flex-col items-center">
+                    <Clock className="h-5 w-5 text-primary mb-1" />
+                    <span className="text-sm text-gray-500">وقت الطهي</span>
+                    <span className="font-medium">{recipe.cookTime}</span>
+                  </div>
+                  <div className="bg-primary/10 p-4 rounded-lg flex flex-col items-center">
+                    <Users className="h-5 w-5 text-primary mb-1" />
+                    <span className="text-sm text-gray-500">عدد الأشخاص</span>
+                    <span className="font-medium">{servings} أشخاص</span>
+                  </div>
+                  <div className="bg-primary/10 p-4 rounded-lg flex flex-col items-center">
+                    <ThumbsUp className="h-5 w-5 text-primary mb-1" />
+                    <span className="text-sm text-gray-500">نسبة النجاح</span>
+                    <span className="font-medium">98%</span>
+                  </div>
+                </div>
+                
+                {/* Tabs for Recipe Details */}
+                <Tabs defaultValue="ingredients" className="mt-6">
+                  <TabsList className="grid grid-cols-3 mb-6">
+                    <TabsTrigger value="ingredients">المكونات</TabsTrigger>
+                    <TabsTrigger value="instructions">طريقة التحضير</TabsTrigger>
+                    <TabsTrigger value="nutrition">معلومات غذائية</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="ingredients" className="p-4 bg-white/5 backdrop-blur-sm rounded-lg">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold">المكونات</h3>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setServings(Math.max(1, servings - 1))}
+                          className="h-8 w-8 p-0"
+                        >
+                          -
+                        </Button>
+                        <span>{servings} أشخاص</span>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setServings(servings + 1)}
+                          className="h-8 w-8 p-0"
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <ul className="space-y-3">
+                      {recipe.ingredients.map((ingredient, index) => (
+                        <li key={index} className="flex items-center">
+                          <div className="h-2 w-2 rounded-full bg-primary mr-3"></div>
+                          <span>{ingredient}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </TabsContent>
+                  
+                  <TabsContent value="instructions" className="p-4 bg-white/5 backdrop-blur-sm rounded-lg">
+                    <h3 className="text-lg font-bold mb-4">طريقة التحضير</h3>
+                    <ol className="space-y-6">
+                      {recipe.instructions.map((step, index) => (
+                        <li key={index} className="flex">
+                          <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white font-bold mr-4">
+                            {index + 1}
+                          </div>
+                          <div className="mt-1">{step}</div>
+                        </li>
+                      ))}
+                    </ol>
+                  </TabsContent>
+                  
+                  <TabsContent value="nutrition" className="p-4 bg-white/5 backdrop-blur-sm rounded-lg">
+                    <h3 className="text-lg font-bold mb-4">المعلومات الغذائية</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg text-center">
+                        <span className="block text-sm text-gray-500">سعرات حرارية</span>
+                        <span className="font-bold text-lg">{recipe.nutrition.calories}</span>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg text-center">
+                        <span className="block text-sm text-gray-500">بروتين</span>
+                        <span className="font-bold text-lg">{recipe.nutrition.protein}</span>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg text-center">
+                        <span className="block text-sm text-gray-500">كربوهيدرات</span>
+                        <span className="font-bold text-lg">{recipe.nutrition.carbs}</span>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg text-center">
+                        <span className="block text-sm text-gray-500">دهون</span>
+                        <span className="font-bold text-lg">{recipe.nutrition.fats}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg flex items-start">
+                      <Info className="h-5 w-5 text-yellow-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm">
+                        المعلومات الغذائية تقريبية وقد تختلف حسب المكونات المستخدمة وطريقة التحضير.
+                      </p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </Card>
+            
+            {/* Chef Tips */}
+            <Card className="metaverse-card overflow-hidden mb-8">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-4">نصائح الشيف</h3>
+                <ul className="space-y-3">
+                  {recipe.tips.map((tip, index) => (
+                    <li key={index} className="flex items-start">
+                      <ChefHat className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                      <span>{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            {/* Action Buttons */}
+            <Card className="metaverse-card overflow-hidden mb-8">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <Button 
+                    variant="outline" 
+                    className="w-full flex items-center justify-center gap-2"
+                    onClick={handlePrint}
+                  >
+                    <Printer className="h-4 w-4" />
+                    طباعة
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className={`w-full flex items-center justify-center gap-2 ${
+                      saved ? 'bg-primary/10 text-primary' : ''
+                    }`}
+                    onClick={handleSaveRecipe}
+                  >
+                    <BookmarkPlus className="h-4 w-4" />
+                    {saved ? 'تم الحفظ' : 'حفظ'}
+                  </Button>
+                </div>
+                
+                <Button 
+                  className="w-full metaverse-button mb-4" 
+                  onClick={handleShare}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  مشاركة الوصفة
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Chef Info */}
+            <Card className="metaverse-card overflow-hidden mb-8">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-bold mb-4">الشيف</h3>
+                <div className="flex items-center">
+                  <img 
+                    src={recipe.author.avatar} 
+                    alt={recipe.author.name} 
+                    className="h-12 w-12 rounded-full object-cover mr-4" 
+                  />
+                  <div>
+                    <h4 className="font-medium">{recipe.author.name}</h4>
+                    <p className="text-sm text-gray-600">شيف محترف</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Related Recipes Placeholder */}
+            <Card className="metaverse-card overflow-hidden">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-bold mb-4">وصفات مشابهة</h3>
+                <div className="space-y-4">
+                  <Button 
+                    variant="link" 
+                    className="w-full justify-start p-0 text-primary hover:text-primary/80"
+                    onClick={() => navigate('/recipe/2')}
+                  >
+                    قطايف بالقشطة والفستق
+                  </Button>
+                  <Button 
+                    variant="link" 
+                    className="w-full justify-start p-0 text-primary hover:text-primary/80"
+                    onClick={() => navigate('/recipe/3')}
+                  >
+                    بقلاوة بالفستق
+                  </Button>
+                  <Button 
+                    variant="link" 
+                    className="w-full justify-start p-0 text-primary hover:text-primary/80"
+                    onClick={() => navigate('/recipe/4')}
+                  >
+                    عوامة بالقطر
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
