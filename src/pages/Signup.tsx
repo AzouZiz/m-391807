@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChefHat, Mail, Lock, User, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -15,12 +16,26 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
     password?: string;
     terms?: string;
+    general?: string;
   }>({});
+
+  useEffect(() => {
+    // التحقق مما إذا كان المستخدم مسجل الدخول بالفعل
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/dashboard');
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -49,48 +64,49 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
     
-    // تحقق مما إذا كان المستخدم موجودًا بالفعل
-    const users = JSON.parse(localStorage.getItem('sapidFoodUsers') || '[]');
-    const existingUser = users.find((user: any) => user.email === email);
+    setIsLoading(true);
     
-    if (existingUser) {
-      setErrors({ email: 'هذا البريد الإلكتروني مسجل بالفعل' });
-      return;
+    try {
+      // إنشاء المستخدم في Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+          },
+        },
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "تم إنشاء الحساب",
+        description: "مرحبًا بك في SapidFood! تم إنشاء حسابك بنجاح.",
+      });
+      
+      // توجيه المستخدم إلى لوحة التحكم
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('خطأ في التسجيل:', error);
+      
+      if (error.message.includes('already')) {
+        setErrors({ email: 'هذا البريد الإلكتروني مسجل بالفعل' });
+      } else {
+        setErrors({ general: error.message || 'حدث خطأ أثناء التسجيل' });
+      }
+    } finally {
+      setIsLoading(false);
     }
-    
-    // إنشاء حساب جديد
-    const newUser = {
-      id: Date.now().toString(),
-      name,
-      email,
-      password, // ملاحظة: في الإنتاج، يجب تشفير كلمة المرور
-      createdAt: new Date().toISOString(),
-    };
-    
-    // إضافة المستخدم إلى التخزين المحلي
-    localStorage.setItem('sapidFoodUsers', JSON.stringify([...users, newUser]));
-    
-    // تعيين المستخدم الحالي
-    localStorage.setItem('currentUser', JSON.stringify({
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email
-    }));
-    
-    toast({
-      title: "تم إنشاء الحساب",
-      description: "مرحبًا بك في SapidFood! تم إنشاء حسابك بنجاح.",
-    });
-    
-    // توجيه المستخدم إلى لوحة التحكم
-    navigate('/dashboard');
   };
 
   return (
@@ -106,6 +122,13 @@ const Signup = () => {
         
         <Card className="metaverse-card p-6">
           <h1 className="text-2xl font-bold mb-6 text-center text-gradient">إنشاء حساب جديد</h1>
+          
+          {errors.general && (
+            <div className="bg-red-500/20 border border-red-500/50 rounded-md p-3 mb-4 text-white flex items-center">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              <p>{errors.general}</p>
+            </div>
+          )}
           
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
@@ -198,9 +221,17 @@ const Signup = () => {
               </p>
             )}
             
-            <Button type="submit" className="metaverse-button w-full">
-              إنشاء حساب
-              <ArrowRight className="mr-2 h-4 w-4" />
+            <Button 
+              type="submit" 
+              className="metaverse-button w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? 'جاري إنشاء الحساب...' : (
+                <>
+                  إنشاء حساب
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                </>
+              )}
             </Button>
           </form>
           

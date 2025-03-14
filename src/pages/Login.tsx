@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChefHat, Mail, Lock, ArrowRight, User, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,16 +7,30 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
     general?: string;
   }>({});
+
+  useEffect(() => {
+    // التحقق مما إذا كان المستخدم مسجل الدخول بالفعل
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/dashboard');
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -33,80 +47,51 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
   
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
     
-    // استرداد قائمة المستخدمين من التخزين المحلي
-    const users = JSON.parse(localStorage.getItem('sapidFoodUsers') || '[]');
+    setIsLoading(true);
     
-    // البحث عن المستخدم بواسطة البريد الإلكتروني
-    const user = users.find((u: any) => u.email === email);
-    
-    // التحقق من صحة بيانات الاعتماد
-    if (!user || user.password !== password) {
-      setErrors({ general: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
-      return;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "تم تسجيل الدخول بنجاح",
+        description: "مرحبًا بعودتك!",
+      });
+      
+      // توجيه المستخدم إلى لوحة التحكم
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('خطأ في تسجيل الدخول:', error);
+      
+      if (error.message.includes('Invalid login credentials')) {
+        setErrors({ general: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
+      } else {
+        setErrors({ general: error.message || 'حدث خطأ أثناء تسجيل الدخول' });
+      }
+    } finally {
+      setIsLoading(false);
     }
-    
-    // حفظ معلومات المستخدم الحالي (باستثناء كلمة المرور)
-    localStorage.setItem('currentUser', JSON.stringify({
-      id: user.id,
-      name: user.name,
-      email: user.email
-    }));
-    
-    toast({
-      title: "تم تسجيل الدخول بنجاح",
-      description: `مرحبًا بعودتك، ${user.name}!`,
-    });
-    
-    // توجيه المستخدم إلى لوحة التحكم
-    navigate('/dashboard');
   };
   
-  const handleAdminLogin = () => {
-    // إنشاء حساب المسؤول إذا لم يكن موجودًا بالفعل
-    const users = JSON.parse(localStorage.getItem('sapidFoodUsers') || '[]');
+  const handleAdminLogin = async () => {
+    setEmail('admin@sapid.com');
+    setPassword('admin123');
     
-    if (!users.some((u: any) => u.email === 'admin@sapid.com')) {
-      const adminUser = {
-        id: 'admin-' + Date.now().toString(),
-        name: 'مسؤول النظام',
-        email: 'admin@sapid.com',
-        password: 'admin123', // في الإنتاج، استخدم كلمة مرور أقوى
-        role: 'admin',
-        createdAt: new Date().toISOString(),
-      };
-      
-      localStorage.setItem('sapidFoodUsers', JSON.stringify([...users, adminUser]));
-    }
-    
-    // تعيين المسؤول كمستخدم حالي
-    const adminUser = users.find((u: any) => u.email === 'admin@sapid.com') || {
-      id: 'admin-' + Date.now().toString(),
-      name: 'مسؤول النظام',
-      email: 'admin@sapid.com',
-      role: 'admin'
-    };
-    
-    localStorage.setItem('currentUser', JSON.stringify({
-      id: adminUser.id,
-      name: adminUser.name,
-      email: adminUser.email,
-      role: 'admin'
-    }));
-    
-    toast({
-      title: "تم تسجيل دخول المسؤول",
-      description: "جاري التوجيه إلى لوحة تحكم المسؤول...",
-    });
-    
-    // توجيه المستخدم إلى لوحة التحكم
-    navigate('/dashboard');
+    // استخدم دالة handleLogin مع حدث وهمي
+    await handleLogin({ preventDefault: () => {} } as React.FormEvent);
   };
 
   return (
@@ -178,9 +163,17 @@ const Login = () => {
               )}
             </div>
             
-            <Button type="submit" className="metaverse-button w-full bg-gradient-to-r from-primary to-accent hover:shadow-lg transition-all duration-300">
-              تسجيل الدخول
-              <ArrowRight className="mr-2 h-4 w-4" />
+            <Button 
+              type="submit" 
+              className="metaverse-button w-full bg-gradient-to-r from-primary to-accent hover:shadow-lg transition-all duration-300"
+              disabled={isLoading}
+            >
+              {isLoading ? 'جاري تسجيل الدخول...' : (
+                <>
+                  تسجيل الدخول
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                </>
+              )}
             </Button>
           </form>
           
@@ -197,6 +190,7 @@ const Login = () => {
             variant="outline" 
             className="w-full mb-4 border-white/20 text-white hover:bg-white/10 transition-all duration-300"
             onClick={handleAdminLogin}
+            disabled={isLoading}
           >
             <User className="mr-2 h-4 w-4" />
             تسجيل دخول المسؤول
