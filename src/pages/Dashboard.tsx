@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChefHat, Search, Award, Book, UserRound, LogOut } from 'lucide-react';
+import { ChefHat, Search, Award, Book, UserRound, LogOut, Calendar, Sparkles } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -139,9 +139,21 @@ const Dashboard = () => {
             <Link to="/meal-planning">
               <Card className="bg-gradient-to-br from-blue-600/80 to-cyan-700/80 hover:from-blue-600/90 hover:to-cyan-700/90 border-white/30 hover:border-white/50 hover:shadow-lg transition-all duration-300">
                 <CardContent className="flex flex-col items-center justify-center p-6 h-40">
-                  <ChefHat className="h-12 w-12 text-white mb-4" />
+                  <Calendar className="h-12 w-12 text-white mb-4" />
                   <h3 className="text-xl font-bold text-white">خطة وجبات</h3>
                   <p className="text-white/80 text-sm text-center mt-1">خطط وجبات أسبوعية متوازنة</p>
+                </CardContent>
+              </Card>
+            </Link>
+            
+            <Link to="/ai-recipes" className="lg:col-span-3">
+              <Card className="bg-gradient-to-br from-amber-600/80 to-orange-700/80 hover:from-amber-600/90 hover:to-orange-700/90 border-white/30 hover:border-white/50 hover:shadow-lg transition-all duration-300">
+                <CardContent className="flex flex-col sm:flex-row items-center justify-between p-6 h-40">
+                  <div className="flex flex-col items-center sm:items-start text-center sm:text-left mb-4 sm:mb-0">
+                    <h3 className="text-xl font-bold text-white">وصفات ذكية</h3>
+                    <p className="text-white/80 text-sm mt-1">اكتشف وصفات مخصصة باستخدام الذكاء الاصطناعي</p>
+                  </div>
+                  <Sparkles className="h-16 w-16 text-white/90" />
                 </CardContent>
               </Card>
             </Link>
