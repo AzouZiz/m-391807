@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { toast } from '@/hooks/use-toast';
 import {
@@ -108,7 +107,6 @@ const SocialShare = ({
     }
   };
 
-  // الواجهة التقليدية مع أزرار منفصلة لكل منصة
   if (variant === 'default') {
     return (
       <div className={`flex flex-wrap gap-2 ${className}`}>
@@ -167,7 +165,6 @@ const SocialShare = ({
     );
   }
   
-  // واجهة حديثة مع أيقونات ملونة
   if (variant === 'modern') {
     return (
       <div className={`flex flex-wrap gap-2 ${className}`}>
@@ -222,7 +219,6 @@ const SocialShare = ({
     );
   }
   
-  // واجهة مبسطة مع أيقونات فقط
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {navigator.share && (
