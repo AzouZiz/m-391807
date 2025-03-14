@@ -8,7 +8,7 @@ import {
   Linkedin,
   Link as LinkIcon,
   Copy,
-  WhatsApp,
+  MessageSquare,
   Share2
 } from 'lucide-react';
 import {
@@ -25,7 +25,7 @@ interface SocialShareProps {
   description?: string;
   imageUrl?: string;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'default' | 'lg';
   variant?: 'default' | 'modern' | 'minimal';
 }
 
@@ -35,14 +35,14 @@ const SocialShare = ({
   description = '',
   imageUrl = '',
   className = '',
-  size = 'md',
+  size = 'default',
   variant = 'default'
 }: SocialShareProps) => {
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
   const encodedDescription = encodeURIComponent(description || '');
   
-  const iconSize = size === 'sm' ? 16 : size === 'md' ? 20 : 24;
+  const iconSize = size === 'sm' ? 16 : size === 'default' ? 20 : 24;
   
   const socialPlatforms = [
     {
@@ -59,7 +59,7 @@ const SocialShare = ({
     },
     {
       name: 'واتساب',
-      icon: <WhatsApp size={iconSize} />,
+      icon: <MessageSquare size={iconSize} />,
       shareUrl: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
       color: 'bg-[#25D366] hover:bg-[#25D366]/90',
     },
