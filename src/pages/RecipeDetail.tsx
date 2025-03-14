@@ -21,6 +21,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import SocialShare from '@/components/SocialShare';
 
 interface Recipe {
   id: string;
@@ -142,25 +143,6 @@ const RecipeDetail = () => {
       toast({
         title: "تم إزالة الوصفة",
         description: "تمت إزالة الوصفة من المفضلة."
-      });
-    }
-  };
-  
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: recipe?.title,
-        text: recipe?.description,
-        url: window.location.href,
-      }).catch((error) => {
-        console.error('Error sharing:', error);
-      });
-    } else {
-      // Fallback
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "تم نسخ الرابط",
-        description: "تم نسخ رابط الوصفة إلى الحافظة.",
       });
     }
   };
@@ -426,13 +408,16 @@ const RecipeDetail = () => {
                   </Button>
                 </div>
                 
-                <Button 
-                  className="w-full metaverse-button mb-4" 
-                  onClick={handleShare}
-                >
-                  <Share2 className="h-4 w-4 mr-2" />
-                  مشاركة الوصفة
-                </Button>
+                {/* استبدال زر المشاركة بمكون المشاركة الاجتماعية */}
+                <h3 className="text-lg font-bold mb-4">مشاركة الوصفة</h3>
+                <SocialShare 
+                  title={recipe.title}
+                  description={recipe.description}
+                  url={window.location.href}
+                  imageUrl={recipe.image}
+                  variant="modern"
+                  className="mb-4"
+                />
               </CardContent>
             </Card>
             
