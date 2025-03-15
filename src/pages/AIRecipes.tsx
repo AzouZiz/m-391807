@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, ChefHat, Sparkles, Search, 
-  AlertCircle, Loader2, ListFilter, Clock
+  AlertCircle, Loader2, ListFilter, Clock, Save, BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,7 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from '@/components/ui/checkbox';
+import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 interface AIRecipe {
   id: string;
@@ -48,6 +52,8 @@ const AIRecipes = () => {
     'وجبة غنية بالبروتين',
     'أطباق تقليدية سهلة'
   ]);
+  const [selectedRecipe, setSelectedRecipe] = useState<AIRecipe | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   
   const dietOptions = [
     { value: '', label: 'أي نظام غذائي' },
@@ -73,7 +79,8 @@ const AIRecipes = () => {
     e.preventDefault();
     
     // Check if user is logged in
-    if (!localStorage.getItem('currentUser')) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
       toast({
         title: "يرجى تسجيل الدخول",
         description: "يجب عليك تسجيل الدخول لاستخدام ميزة الوصفات الذكية",
@@ -94,96 +101,23 @@ const AIRecipes = () => {
     
     setLoading(true);
     
-    // في التطبيق الحقيقي، هنا سنقوم بإرسال الطلب إلى API للذكاء الاصطناعي
-    // هنا نقوم بمحاكاة استجابة API بعد فترة زمنية
-    setTimeout(() => {
-      const mockRecipes: AIRecipe[] = [
-        {
-          id: 'ai-1',
-          title: 'سلطة الكينوا المتوسطية',
-          image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=2070',
-          description: 'سلطة صحية ولذيذة مصنوعة من الكينوا والخضروات الطازجة والأعشاب',
-          category: 'سلطات',
-          difficulty: 'سهل',
-          time: '20 دقيقة',
-          ingredients: [
-            'كوب كينوا مطبوخة',
-            'خيار مقطع',
-            'طماطم كرزية',
-            'فلفل ملون',
-            'بصل أحمر',
-            'زيتون أسود',
-            'جبنة فيتا',
-            'زيت زيتون',
-            'عصير ليمون',
-            'أعشاب طازجة'
-          ],
-          instructions: [
-            'اطبخ الكينوا حسب التعليمات على العبوة واتركها تبرد.',
-            'قطع الخضروات إلى قطع صغيرة.',
-            'امزج الكينوا والخضار والزيتون والجبنة في وعاء كبير.',
-            'اخلط زيت الزيتون وعصير الليمون والأعشاب لعمل التتبيلة.',
-            'أضف التتبيلة إلى السلطة وقلبها جيداً.',
-            'قدمها باردة.'
-          ]
-        },
-        {
-          id: 'ai-2',
-          title: 'دجاج مشوي بالأعشاب والليمون',
-          image: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&q=80&w=2069',
-          description: 'دجاج طري ومتبل بالأعشاب الطازجة وعصير الليمون',
-          category: 'أطباق رئيسية',
-          difficulty: 'متوسط',
-          time: '50 دقيقة',
-          ingredients: [
-            'صدور دجاج',
-            'ثوم مفروم',
-            'زعتر طازج',
-            'إكليل الجبل',
-            'عصير ليمون',
-            'زيت زيتون',
-            'ملح وفلفل'
-          ],
-          instructions: [
-            'اخلط الثوم والأعشاب وعصير الليمون وزيت الزيتون والتوابل في وعاء.',
-            'ضع الدجاج في التتبيلة واتركه في الثلاجة لمدة ساعة على الأقل.',
-            'سخن الفرن إلى 200 درجة مئوية.',
-            'ضع الدجاج في صينية الخبز واسكب باقي التتبيلة عليه.',
-            'اشوي لمدة 30-35 دقيقة حتى ينضج تماماً.',
-            'قدمه مع الخضار المشوية.'
-          ]
-        },
-        {
-          id: 'ai-3',
-          title: 'باستا بصلصة الطماطم والريحان',
-          image: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&q=80&w=2070',
-          description: 'باستا إيطالية كلاسيكية مع صلصة طماطم منزلية وريحان طازج',
-          category: 'أطباق رئيسية',
-          difficulty: 'سهل',
-          time: '25 دقيقة',
-          ingredients: [
-            'معكرونة سباغيتي',
-            'طماطم مقطعة',
-            'بصل مفروم',
-            'ثوم مفروم',
-            'معجون طماطم',
-            'ريحان طازج',
-            'زيت زيتون',
-            'ملح وفلفل',
-            'جبنة بارميزان للتقديم'
-          ],
-          instructions: [
-            'اطبخ المعكرونة في ماء مملح حتى تصبح طرية.',
-            'في مقلاة، سخن زيت الزيتون وأضف البصل والثوم وقلبهما حتى يذبلا.',
-            'أضف الطماطم ومعجون الطماطم واتركها على نار خفيفة لمدة 15 دقيقة.',
-            'أضف الريحان المفروم والتوابل.',
-            'صفي المعكرونة وأضفها إلى الصلصة وقلبها جيداً.',
-            'قدمها مع جبنة البارميزان المبشورة.'
-          ]
+    try {
+      // استدعاء الـ Edge Function
+      const { data, error } = await supabase.functions.invoke('generate-recipe', {
+        body: {
+          query,
+          ingredients,
+          diet,
+          cuisine,
+          excludeIngredients
         }
-      ];
+      });
       
-      // Update the suggested queries based on current search
+      if (error) throw error;
+      
+      setGeneratedRecipes(data.recipes);
+      
+      // تحديث الاقتراحات بناءً على البحث الحالي
       const newSuggestions = [
         'وصفات ' + (cuisine || 'متنوعة') + ' سريعة التحضير',
         'أطباق ' + (diet || 'صحية') + ' لذيذة',
@@ -193,18 +127,73 @@ const AIRecipes = () => {
       ];
       setSuggestedQueries(newSuggestions);
       
-      setGeneratedRecipes(mockRecipes);
-      setLoading(false);
-      
       toast({
         title: "تم إنشاء الوصفات",
         description: "تم إنشاء وصفات تناسب طلبك بنجاح!",
       });
-    }, 2000);
+    } catch (error) {
+      console.error('خطأ في إنشاء الوصفات:', error);
+      toast({
+        title: "حدث خطأ",
+        description: "تعذر إنشاء الوصفات. يرجى المحاولة مرة أخرى لاحقًا.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
   
   const handleSuggestedQuery = (query: string) => {
     setQuery(query);
+  };
+
+  const handleViewRecipe = (recipe: AIRecipe) => {
+    setSelectedRecipe(recipe);
+    setIsDetailOpen(true);
+  };
+
+  const saveRecipe = async (recipe: AIRecipe) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "يرجى تسجيل الدخول",
+          description: "يجب عليك تسجيل الدخول لحفظ الوصفات",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // حفظ الوصفة في قاعدة البيانات
+      const { error } = await supabase
+        .from('recipes')
+        .insert({
+          title: recipe.title,
+          description: recipe.description,
+          category: recipe.category,
+          cooking_time: parseInt(recipe.time) || 30,
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions.join('\n'),
+          image_url: recipe.image,
+          servings: 4,
+          user_id: session.user.id,
+          tags: [diet, cuisine].filter(tag => tag)
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "تم حفظ الوصفة",
+        description: "تم حفظ الوصفة في مجموعة وصفاتك الخاصة",
+      });
+    } catch (error) {
+      console.error('خطأ في حفظ الوصفة:', error);
+      toast({
+        title: "خطأ في الحفظ",
+        description: "تعذر حفظ الوصفة. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    }
   };
   
   return (
@@ -236,6 +225,7 @@ const AIRecipes = () => {
                     <div className="space-y-2">
                       <Label className="text-white">ماذا تريد أن تطبخ؟</Label>
                       <Textarea
+                        id="ai-query"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="مثل: وصفة صحية لعشاء سريع لشخصين..."
@@ -348,7 +338,7 @@ const AIRecipes = () => {
                       جاري إنشاء وصفات ذكية باستخدام الذكاء الاصطناعي...
                     </p>
                     <div className="h-2 bg-white/20 rounded overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-primary to-accent animate-pulse"></div>
+                      <div className="h-full bg-gradient-to-r from-primary to-accent w-1/2 animate-pulse"></div>
                     </div>
                   </div>
                 </Card>
@@ -367,9 +357,9 @@ const AIRecipes = () => {
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute top-2 right-2">
-                          <span className="micro-chip bg-white/80 text-primary">
+                          <Badge className="bg-white/80 text-primary hover:bg-white">
                             {recipe.category}
-                          </span>
+                          </Badge>
                         </div>
                       </div>
                       
@@ -407,20 +397,35 @@ const AIRecipes = () => {
                           </div>
                         </div>
                         
-                        <div className="flex justify-between items-center mt-4">
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            recipe.difficulty === 'سهل' ? 'bg-green-100 text-green-800' :
-                            recipe.difficulty === 'متوسط' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
+                        <div className="flex flex-wrap justify-between items-center mt-4 gap-2">
+                          <Badge variant="outline" className={cn(
+                            recipe.difficulty === 'سهل' ? 'text-green-600 border-green-200 bg-green-50' :
+                            recipe.difficulty === 'متوسط' ? 'text-amber-600 border-amber-200 bg-amber-50' :
+                            'text-red-600 border-red-200 bg-red-50'
+                          )}>
                             {recipe.difficulty}
-                          </span>
-                          <Button 
-                            onClick={() => navigate(`/recipe/${recipe.id}`)} 
-                            className="neo-button"
-                          >
-                            عرض الوصفة كاملة
-                          </Button>
+                          </Badge>
+                          
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline"
+                              size="sm"
+                              onClick={() => saveRecipe(recipe)}
+                              className="text-primary border-primary/30 hover:bg-primary/10"
+                            >
+                              <Save className="h-4 w-4 mr-1" />
+                              حفظ الوصفة
+                            </Button>
+                            
+                            <Button 
+                              onClick={() => handleViewRecipe(recipe)} 
+                              className="neo-button"
+                              size="sm"
+                            >
+                              <BookOpen className="h-4 w-4 mr-1" />
+                              عرض التفاصيل
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -452,8 +457,74 @@ const AIRecipes = () => {
           </div>
         </div>
       </div>
+
+      {/* Recipe Detail Dialog */}
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {selectedRecipe && (
+            <div>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">{selectedRecipe.title}</DialogTitle>
+                <DialogDescription className="text-base text-gray-500">{selectedRecipe.description}</DialogDescription>
+              </DialogHeader>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <div className="relative h-64 rounded-lg overflow-hidden">
+                    <img src={selectedRecipe.image} alt={selectedRecipe.title} className="w-full h-full object-cover" />
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <Badge className="bg-primary/90">{selectedRecipe.category}</Badge>
+                    <Badge variant="outline" className={cn(
+                      selectedRecipe.difficulty === 'سهل' ? 'text-green-600 border-green-200 bg-green-50' :
+                      selectedRecipe.difficulty === 'متوسط' ? 'text-amber-600 border-amber-200 bg-amber-50' :
+                      'text-red-600 border-red-200 bg-red-50'
+                    )}>
+                      {selectedRecipe.difficulty}
+                    </Badge>
+                    <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">
+                      <Clock className="h-3 w-3 mr-1" />
+                      {selectedRecipe.time}
+                    </Badge>
+                  </div>
+
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold mb-3">المكونات</h3>
+                    <ul className="list-disc list-inside space-y-2">
+                      {selectedRecipe.ingredients.map((ingredient, index) => (
+                        <li key={index} className="text-gray-700">{ingredient}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">طريقة التحضير</h3>
+                  <ol className="list-decimal list-inside space-y-4">
+                    {selectedRecipe.instructions.map((step, index) => (
+                      <li key={index} className="text-gray-700">
+                        <span className="font-medium text-gray-900">الخطوة {index + 1}:</span>{' '}
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-end">
+                <Button onClick={() => saveRecipe(selectedRecipe)} className="bg-primary text-white">
+                  <Save className="h-4 w-4 mr-2" />
+                  حفظ الوصفة في مجموعتك
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 export default AIRecipes;
+
