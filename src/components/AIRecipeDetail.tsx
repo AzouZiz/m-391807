@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Save } from 'lucide-react';
+import { Clock, Save, Share2, PrinterIcon, Heart, ChefHat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -37,13 +37,64 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
   setIsDetailOpen,
   saveRecipe
 }) => {
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [isLiked, setIsLiked] = React.useState(false);
+  
   if (!selectedRecipe) return null;
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await saveRecipe(selectedRecipe);
+      setIsSaving(false);
+    } catch (error) {
+      setIsSaving(false);
+    }
+  };
+  
+  const handlePrint = () => {
+    window.print();
+  };
+  
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+  };
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">{selectedRecipe.title}</DialogTitle>
+          <div className="flex justify-between items-center">
+            <DialogTitle className="text-2xl font-bold">{selectedRecipe.title}</DialogTitle>
+            <div className="flex space-x-2">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-gray-400 hover:text-gray-700"
+                onClick={handlePrint}
+              >
+                <PrinterIcon className="h-5 w-5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-gray-400 hover:text-gray-700"
+              >
+                <Share2 className="h-5 w-5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className={cn(
+                  "text-gray-400 hover:text-red-500",
+                  isLiked && "text-red-500"
+                )}
+                onClick={handleLike}
+              >
+                <Heart className={cn("h-5 w-5", isLiked && "fill-current")} />
+              </Button>
+            </div>
+          </div>
           <DialogDescription className="text-base text-gray-500">{selectedRecipe.description}</DialogDescription>
         </DialogHeader>
 
@@ -51,6 +102,12 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
           <div>
             <div className="relative h-64 rounded-lg overflow-hidden">
               <img src={selectedRecipe.image} alt={selectedRecipe.title} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
+                <div className="flex items-center text-white">
+                  <ChefHat className="h-5 w-5 mr-2" />
+                  <span className="font-medium">وصفة بالذكاء الاصطناعي</span>
+                </div>
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-2 mt-4">
@@ -80,11 +137,15 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
 
           <div>
             <h3 className="text-lg font-semibold mb-3">طريقة التحضير</h3>
-            <ol className="list-decimal list-inside space-y-4">
+            <ol className="relative list-none space-y-6 border-r-2 border-primary/20 pr-6 mr-2">
               {selectedRecipe.instructions.map((step, index) => (
-                <li key={index} className="text-gray-700">
-                  <span className="font-medium text-gray-900">الخطوة {index + 1}:</span>{' '}
-                  {step}
+                <li key={index} className="relative">
+                  <div className="absolute right-[-29px] top-0 bg-primary/20 text-primary w-6 h-6 rounded-full flex items-center justify-center">
+                    {index + 1}
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <p className="text-gray-700">{step}</p>
+                  </div>
                 </li>
               ))}
             </ol>
@@ -92,8 +153,16 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
         </div>
 
         <div className="mt-8 flex justify-end">
-          <Button onClick={() => saveRecipe(selectedRecipe)} className="bg-primary text-white">
-            <Save className="h-4 w-4 mr-2" />
+          <Button 
+            onClick={handleSave} 
+            className="bg-primary text-white"
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <Clock className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
             حفظ الوصفة في مجموعتك
           </Button>
         </div>

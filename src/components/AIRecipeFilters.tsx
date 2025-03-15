@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles, Search } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Sparkles, Search, X, Filter } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -12,6 +13,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface AIRecipeFiltersProps {
   query: string;
@@ -76,88 +82,171 @@ const AIRecipeFilters: React.FC<AIRecipeFiltersProps> = ({
   handleSuggestedQuery,
   generatedRecipes
 }) => {
+  const [isAdvancedOpen, setIsAdvancedOpen] = React.useState(false);
+  
+  // Function to reset all filters
+  const handleReset = () => {
+    setQuery('');
+    setIngredients('');
+    setDiet('');
+    setCuisine('');
+    setExcludeIngredients('');
+  };
+
+  // Function to check if any filters are active
+  const hasActiveFilters = () => {
+    return diet !== '' || cuisine !== '' || excludeIngredients !== '';
+  };
+
   return (
     <div className="lg:col-span-1">
-      <div className="metaverse-card overflow-hidden sticky top-8">
+      <div className="metaverse-card overflow-hidden sticky top-8 transition-all duration-300 hover:shadow-lg">
         <div className="p-6">
           <form onSubmit={handleGenerateRecipes}>
             <div className="space-y-6">
               <div className="space-y-2">
-                <Label className="text-white">ماذا تريد أن تطبخ؟</Label>
+                <Label className="text-white flex items-center justify-between">
+                  <span>ماذا تريد أن تطبخ؟</span>
+                  {query && (
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 px-2 text-white/70 hover:text-white"
+                      onClick={() => setQuery('')}
+                    >
+                      <X className="h-3 w-3 mr-1" />
+                      مسح
+                    </Button>
+                  )}
+                </Label>
                 <Textarea
                   id="ai-query"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="مثل: وصفة صحية لعشاء سريع لشخصين..."
-                  className="metaverse-input h-24 text-right"
+                  className="metaverse-input h-24 text-right transition-all duration-200 focus:border-primary/50"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label className="text-white">المكونات المتوفرة لديك</Label>
+                <Label className="text-white flex items-center justify-between">
+                  <span>المكونات المتوفرة لديك</span>
+                  {ingredients && (
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 px-2 text-white/70 hover:text-white"
+                      onClick={() => setIngredients('')}
+                    >
+                      <X className="h-3 w-3 mr-1" />
+                      مسح
+                    </Button>
+                  )}
+                </Label>
                 <Textarea
                   value={ingredients}
                   onChange={(e) => setIngredients(e.target.value)}
                   placeholder="أدخل المكونات مفصولة بفواصل..."
-                  className="metaverse-input h-24 text-right"
+                  className="metaverse-input h-24 text-right transition-all duration-200 focus:border-primary/50"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label className="text-white">النظام الغذائي</Label>
-                <Select value={diet} onValueChange={setDiet}>
-                  <SelectTrigger className="metaverse-input text-right">
-                    <SelectValue placeholder="أي نظام غذائي" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {dietOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-white">المطبخ</Label>
-                <Select value={cuisine} onValueChange={setCuisine}>
-                  <SelectTrigger className="metaverse-input text-right">
-                    <SelectValue placeholder="أي مطبخ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cuisineOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-white">مكونات تريد استبعادها</Label>
-                <Input
-                  value={excludeIngredients}
-                  onChange={(e) => setExcludeIngredients(e.target.value)}
-                  placeholder="مثل: مكسرات، حليب..."
-                  className="metaverse-input text-right"
-                />
-              </div>
+              {/* Collapsible Advanced Filters */}
+              <Collapsible 
+                open={isAdvancedOpen} 
+                onOpenChange={setIsAdvancedOpen}
+                className="border border-white/20 rounded-lg overflow-hidden"
+              >
+                <CollapsibleTrigger asChild>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    className="w-full flex items-center justify-between p-3 text-white hover:bg-white/10"
+                  >
+                    <div className="flex items-center">
+                      <Filter className="h-4 w-4 mr-2" />
+                      خيارات متقدمة
+                    </div>
+                    {hasActiveFilters() && (
+                      <Badge className="bg-primary/80 text-white">
+                        فلاتر نشطة
+                      </Badge>
+                    )}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="p-4 space-y-4 bg-white/5">
+                  <div className="space-y-2">
+                    <Label className="text-white">النظام الغذائي</Label>
+                    <Select value={diet} onValueChange={setDiet}>
+                      <SelectTrigger className="metaverse-input text-right">
+                        <SelectValue placeholder="أي نظام غذائي" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {dietOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="text-white">المطبخ</Label>
+                    <Select value={cuisine} onValueChange={setCuisine}>
+                      <SelectTrigger className="metaverse-input text-right">
+                        <SelectValue placeholder="أي مطبخ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cuisineOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="text-white">مكونات تريد استبعادها</Label>
+                    <Input
+                      value={excludeIngredients}
+                      onChange={(e) => setExcludeIngredients(e.target.value)}
+                      placeholder="مثل: مكسرات، حليب..."
+                      className="metaverse-input text-right"
+                    />
+                  </div>
+                  
+                  {hasActiveFilters() && (
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="w-full border-white/20 text-white/90 hover:bg-white/10"
+                      onClick={handleReset}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      إعادة ضبط جميع الفلاتر
+                    </Button>
+                  )}
+                </CollapsibleContent>
+              </Collapsible>
               
               <Button 
                 type="submit" 
                 className="metaverse-button w-full" 
                 disabled={loading}
+                size="lg"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                     جاري إنشاء الوصفات...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-4 w-4 mr-2" />
+                    <Sparkles className="h-5 w-5 mr-2" />
                     إنشاء وصفات ذكية
                   </>
                 )}
@@ -173,7 +262,7 @@ const AIRecipeFilters: React.FC<AIRecipeFiltersProps> = ({
                   <Button 
                     key={index}
                     variant="outline" 
-                    className="w-full justify-start text-white border-white/20 hover:bg-white/10"
+                    className="w-full justify-start text-white border-white/20 hover:bg-white/10 transition-all duration-200 hover:border-white/40"
                     onClick={() => handleSuggestedQuery(q)}
                   >
                     <Search className="h-4 w-4 mr-2" />

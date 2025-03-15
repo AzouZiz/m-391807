@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Save, BookOpen, Sparkles } from 'lucide-react';
+import { Clock, Save, BookOpen, Sparkles, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 
 interface AIRecipe {
   id: string;
@@ -29,8 +30,34 @@ const AIRecipeCard: React.FC<AIRecipeCardProps> = ({
   saveRecipe, 
   handleViewRecipe 
 }) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await saveRecipe(recipe);
+      setIsSaving(false);
+    } catch (error) {
+      setIsSaving(false);
+    }
+  };
+  
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    if (!isLiked) {
+      toast({
+        title: "أعجبتك الوصفة",
+        description: "تم إضافة الوصفة إلى المفضلة",
+      });
+    }
+  };
+
   return (
-    <Card key={recipe.id} className="neo-card overflow-hidden hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
+    <Card 
+      key={recipe.id} 
+      className="neo-card overflow-hidden hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 transform hover:scale-[1.01]"
+    >
       <div className="grid grid-cols-1 md:grid-cols-3">
         <div className="relative h-60 md:h-auto">
           <img 
@@ -42,6 +69,19 @@ const AIRecipeCard: React.FC<AIRecipeCardProps> = ({
             <Badge className="bg-white/80 text-primary hover:bg-white">
               {recipe.category}
             </Badge>
+          </div>
+          <div className="absolute top-2 left-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className={cn(
+                "rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/40",
+                isLiked && "text-red-500 bg-white/40"
+              )}
+              onClick={handleLike}
+            >
+              <Heart className={cn("h-5 w-5", isLiked && "fill-current")} />
+            </Button>
           </div>
         </div>
         
@@ -92,10 +132,15 @@ const AIRecipeCard: React.FC<AIRecipeCardProps> = ({
               <Button 
                 variant="outline"
                 size="sm"
-                onClick={() => saveRecipe(recipe)}
+                onClick={handleSave}
+                disabled={isSaving}
                 className="text-primary border-primary/30 hover:bg-primary/10"
               >
-                <Save className="h-4 w-4 mr-1" />
+                {isSaving ? (
+                  <Clock className="h-4 w-4 mr-1 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-1" />
+                )}
                 حفظ الوصفة
               </Button>
               
