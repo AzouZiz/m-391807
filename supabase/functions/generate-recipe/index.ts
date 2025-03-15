@@ -21,7 +21,8 @@ serve(async (req) => {
       diet = '', 
       cuisine = '', 
       excludeIngredients = '',
-      query = ''
+      query = '',
+      model = 'gpt-4o-mini' // Default to GPT-4o Mini for faster responses
     } = await req.json();
 
     // بناء المطالبة بناءً على المدخلات المتوفرة
@@ -66,7 +67,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: model,
         messages: [
           { role: 'system', content: 'أنت مساعد مختص في إنشاء وصفات الطعام باللغة العربية، تقدم وصفات دقيقة وشهية.' },
           { role: 'user', content: prompt }
@@ -80,6 +81,8 @@ serve(async (req) => {
 
     // تحليل النص المنشأ إلى كائنات وصفات منظمة
     const recipes = parseRecipes(generatedText);
+
+    console.log(`Generated ${recipes.length} recipes`);
 
     return new Response(JSON.stringify({ recipes }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -155,27 +158,44 @@ function getRandomFoodImage(category) {
     default: [
       'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&q=80&w=2070',
       'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=2070',
-      'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&q=80&w=2072'
+      'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&q=80&w=2072',
+      'https://images.unsplash.com/photo-1592282373868-f2b5bc8c498d?auto=format&fit=crop&q=80&w=2070',
+      'https://images.unsplash.com/photo-1615937691194-97dbd4f0e22a?auto=format&fit=crop&q=80&w=2070'
     ],
     'أطباق رئيسية': [
       'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&q=80&w=2070',
       'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&q=80&w=2070',
-      'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&q=80&w=2070'
+      'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&q=80&w=2070',
+      'https://images.unsplash.com/photo-1593161705398-2f00f97de46e?auto=format&fit=crop&q=80&w=2071',
+      'https://images.unsplash.com/photo-1577303935007-0d306ee638cf?auto=format&fit=crop&q=80&w=2080'
     ],
     'حلويات': [
       'https://images.unsplash.com/photo-1505826759037-406b40feb4cd?auto=format&fit=crop&q=80&w=2072',
       'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&q=80&w=2064',
-      'https://images.unsplash.com/photo-1616518015080-ce8034516176?auto=format&fit=crop&q=80&w=1974'
+      'https://images.unsplash.com/photo-1616518015080-ce8034516176?auto=format&fit=crop&q=80&w=1974',
+      'https://images.unsplash.com/photo-1602351447937-745cb720612f?auto=format&fit=crop&q=80&w=1886',
+      'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&q=80&w=2078'
     ],
     'مقبلات': [
       'https://images.unsplash.com/photo-1607098665874-fd193397547b?auto=format&fit=crop&q=80&w=2070',
       'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=2070',
-      'https://images.unsplash.com/photo-1695438272113-f86c6dae77c1?auto=format&fit=crop&q=80&w=1951'
+      'https://images.unsplash.com/photo-1695438272113-f86c6dae77c1?auto=format&fit=crop&q=80&w=1951',
+      'https://images.unsplash.com/photo-1679518310647-47a2e0771dc9?auto=format&fit=crop&q=80&w=2070',
+      'https://images.unsplash.com/photo-1621963297653-13c0aa535fdd?auto=format&fit=crop&q=80&w=2070'
     ],
     'سلطات': [
       'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=2070',
       'https://images.unsplash.com/photo-1640719028782-8230f1bdc434?auto=format&fit=crop&q=80&w=2070',
-      'https://images.unsplash.com/photo-1607532941433-304659e8198a?auto=format&fit=crop&q=80&w=2078'
+      'https://images.unsplash.com/photo-1607532941433-304659e8198a?auto=format&fit=crop&q=80&w=2078',
+      'https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?auto=format&fit=crop&q=80&w=2070',
+      'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&q=80&w=2064'
+    ],
+    'عربي': [
+      'https://images.unsplash.com/photo-1610634639305-63cc5ea43445?auto=format&fit=crop&q=80&w=2070',
+      'https://images.unsplash.com/photo-1573500883495-6c9b16d88d8c?auto=format&fit=crop&q=80&w=2070',
+      'https://images.unsplash.com/photo-1544681280-d257afc2ff80?auto=format&fit=crop&q=80&w=2066',
+      'https://images.unsplash.com/photo-1529059997568-3d847b1154f0?auto=format&fit=crop&q=80&w=2070',
+      'https://images.unsplash.com/photo-1550715089-be54df6c4e7b?auto=format&fit=crop&q=80&w=2070'
     ]
   };
   

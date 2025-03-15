@@ -1,27 +1,15 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, ChefHat, Sparkles, Search, 
-  AlertCircle, Loader2, ListFilter, Clock, Save, BookOpen
-} from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { supabase } from '@/integrations/supabase/client';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
+import AIRecipeFilters from '@/components/AIRecipeFilters';
+import AIRecipeCard from '@/components/AIRecipeCard';
+import AIRecipeLoading from '@/components/AIRecipeLoading';
+import AIRecipeEmpty from '@/components/AIRecipeEmpty';
+import AIRecipeDetail from '@/components/AIRecipeDetail';
 
 interface AIRecipe {
   id: string;
@@ -53,26 +41,6 @@ const AIRecipes = () => {
   ]);
   const [selectedRecipe, setSelectedRecipe] = useState<AIRecipe | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  
-  const dietOptions = [
-    { value: '', label: 'أي نظام غذائي' },
-    { value: 'نباتي', label: 'نباتي' },
-    { value: 'خالي من الغلوتين', label: 'خالي من الغلوتين' },
-    { value: 'قليل الكربوهيدرات', label: 'قليل الكربوهيدرات' },
-    { value: 'كيتو', label: 'كيتو' },
-    { value: 'باليو', label: 'باليو' },
-  ];
-  
-  const cuisineOptions = [
-    { value: '', label: 'أي مطبخ' },
-    { value: 'عربي', label: 'عربي' },
-    { value: 'إيطالي', label: 'إيطالي' },
-    { value: 'هندي', label: 'هندي' },
-    { value: 'صيني', label: 'صيني' },
-    { value: 'مكسيكي', label: 'مكسيكي' },
-    { value: 'تركي', label: 'تركي' },
-    { value: 'لبناني', label: 'لبناني' },
-  ];
   
   const handleGenerateRecipes = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,6 +162,10 @@ const AIRecipes = () => {
       });
     }
   };
+
+  const handleStartAI = () => {
+    document.getElementById('ai-query')?.focus();
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900/90 via-indigo-800/90 to-blue-900/90">
@@ -215,312 +187,56 @@ const AIRecipes = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="metaverse-card overflow-hidden sticky top-8">
-              <CardContent className="p-6">
-                <form onSubmit={handleGenerateRecipes}>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <Label className="text-white">ماذا تريد أن تطبخ؟</Label>
-                      <Textarea
-                        id="ai-query"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="مثل: وصفة صحية لعشاء سريع لشخصين..."
-                        className="metaverse-input h-24 text-right"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-white">المكونات المتوفرة لديك</Label>
-                      <Textarea
-                        value={ingredients}
-                        onChange={(e) => setIngredients(e.target.value)}
-                        placeholder="أدخل المكونات مفصولة بفواصل..."
-                        className="metaverse-input h-24 text-right"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-white">النظام الغذائي</Label>
-                      <Select value={diet} onValueChange={setDiet}>
-                        <SelectTrigger className="metaverse-input text-right">
-                          <SelectValue placeholder="أي نظام غذائي" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {dietOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-white">المطبخ</Label>
-                      <Select value={cuisine} onValueChange={setCuisine}>
-                        <SelectTrigger className="metaverse-input text-right">
-                          <SelectValue placeholder="أي مطبخ" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {cuisineOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-white">مكونات تريد استبعادها</Label>
-                      <Input
-                        value={excludeIngredients}
-                        onChange={(e) => setExcludeIngredients(e.target.value)}
-                        placeholder="مثل: مكسرات، حليب..."
-                        className="metaverse-input text-right"
-                      />
-                    </div>
-                    
-                    <Button 
-                      type="submit" 
-                      className="metaverse-button w-full" 
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          جاري إنشاء الوصفات...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          إنشاء وصفات ذكية
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-                
-                {!loading && generatedRecipes.length === 0 && (
-                  <div className="mt-6">
-                    <h3 className="text-lg font-bold text-white mb-3">اقتراحات البحث</h3>
-                    <div className="space-y-2">
-                      {suggestedQueries.map((q, index) => (
-                        <Button 
-                          key={index}
-                          variant="outline" 
-                          className="w-full justify-start text-white border-white/20 hover:bg-white/10"
-                          onClick={() => handleSuggestedQuery(q)}
-                        >
-                          <Search className="h-4 w-4 mr-2" />
-                          {q}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          {/* Sidebar with Filters */}
+          <AIRecipeFilters
+            query={query}
+            setQuery={setQuery}
+            ingredients={ingredients}
+            setIngredients={setIngredients}
+            diet={diet}
+            setDiet={setDiet}
+            cuisine={cuisine}
+            setCuisine={setCuisine}
+            excludeIngredients={excludeIngredients}
+            setExcludeIngredients={setExcludeIngredients}
+            loading={loading}
+            handleGenerateRecipes={handleGenerateRecipes}
+            suggestedQueries={suggestedQueries}
+            handleSuggestedQuery={handleSuggestedQuery}
+            generatedRecipes={generatedRecipes}
+          />
           
           {/* Main Content */}
           <div className="lg:col-span-2">
             {loading ? (
-              <div className="flex items-center justify-center h-96">
-                <Card className="w-full max-w-md p-6 bg-white/20 backdrop-blur-lg border border-white/30">
-                  <div className="text-center">
-                    <Sparkles className="h-12 w-12 text-white mx-auto mb-4 animate-pulse" />
-                    <p className="text-white text-lg font-medium mb-4">
-                      جاري إنشاء وصفات ذكية باستخدام الذكاء الاصطناعي...
-                    </p>
-                    <div className="h-2 bg-white/20 rounded overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-primary to-accent w-1/2 animate-pulse"></div>
-                    </div>
-                  </div>
-                </Card>
-              </div>
+              <AIRecipeLoading />
             ) : generatedRecipes.length > 0 ? (
               <div className="space-y-8">
                 <h2 className="text-2xl font-bold text-white mb-4">الوصفات الموصى بها</h2>
                 
                 {generatedRecipes.map((recipe) => (
-                  <Card key={recipe.id} className="neo-card overflow-hidden hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
-                    <div className="grid grid-cols-1 md:grid-cols-3">
-                      <div className="relative h-60 md:h-auto">
-                        <img 
-                          src={recipe.image} 
-                          alt={recipe.title} 
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-white/80 text-primary hover:bg-white">
-                            {recipe.category}
-                          </Badge>
-                        </div>
-                      </div>
-                      
-                      <div className="md:col-span-2 p-6">
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center">
-                            <Sparkles className="h-5 w-5 text-primary mr-2" />
-                            <span className="text-sm text-primary font-medium">وصفة ذكية</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-gray-500" />
-                            <span className="text-sm text-gray-600">{recipe.time}</span>
-                          </div>
-                        </div>
-                        
-                        <h3 className="text-xl font-bold mb-2">{recipe.title}</h3>
-                        <p className="text-gray-600 mb-4">{recipe.description}</p>
-                        
-                        <div className="mb-4">
-                          <h4 className="font-medium mb-2">المكونات الرئيسية:</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {recipe.ingredients.slice(0, 5).map((ing, idx) => (
-                              <span 
-                                key={idx} 
-                                className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full"
-                              >
-                                {ing}
-                              </span>
-                            ))}
-                            {recipe.ingredients.length > 5 && (
-                              <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
-                                +{recipe.ingredients.length - 5} أخرى
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="flex flex-wrap justify-between items-center mt-4 gap-2">
-                          <Badge variant="outline" className={cn(
-                            recipe.difficulty === 'سهل' ? 'text-green-600 border-green-200 bg-green-50' :
-                            recipe.difficulty === 'متوسط' ? 'text-amber-600 border-amber-200 bg-amber-50' :
-                            'text-red-600 border-red-200 bg-red-50'
-                          )}>
-                            {recipe.difficulty}
-                          </Badge>
-                          
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="outline"
-                              size="sm"
-                              onClick={() => saveRecipe(recipe)}
-                              className="text-primary border-primary/30 hover:bg-primary/10"
-                            >
-                              <Save className="h-4 w-4 mr-1" />
-                              حفظ الوصفة
-                            </Button>
-                            
-                            <Button 
-                              onClick={() => handleViewRecipe(recipe)} 
-                              className="neo-button"
-                              size="sm"
-                            >
-                              <BookOpen className="h-4 w-4 mr-1" />
-                              عرض التفاصيل
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
+                  <AIRecipeCard
+                    key={recipe.id}
+                    recipe={recipe}
+                    saveRecipe={saveRecipe}
+                    handleViewRecipe={handleViewRecipe}
+                  />
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-96">
-                <Card className="w-full max-w-md p-8 bg-white/20 backdrop-blur-lg border border-white/30">
-                  <div className="text-center">
-                    <Sparkles className="h-16 w-16 text-white mx-auto mb-6" />
-                    <h2 className="text-2xl font-bold text-white mb-3">
-                      وصفات ذكية باستخدام الذكاء الاصطناعي
-                    </h2>
-                    <p className="text-white/80 mb-6">
-                      اكتب وصفاً لما تريد طبخه، أو أدخل المكونات المتوفرة لديك، وسنقوم بإنشاء وصفات مخصصة لك!
-                    </p>
-                    <Button 
-                      className="metaverse-button" 
-                      onClick={() => document.getElementById('ai-query')?.focus()}
-                    >
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      ابدأ باستخدام الذكاء الاصطناعي
-                    </Button>
-                  </div>
-                </Card>
-              </div>
+              <AIRecipeEmpty onStartAI={handleStartAI} />
             )}
           </div>
         </div>
       </div>
 
       {/* Recipe Detail Dialog */}
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          {selectedRecipe && (
-            <div>
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold">{selectedRecipe.title}</DialogTitle>
-                <DialogDescription className="text-base text-gray-500">{selectedRecipe.description}</DialogDescription>
-              </DialogHeader>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <div>
-                  <div className="relative h-64 rounded-lg overflow-hidden">
-                    <img src={selectedRecipe.image} alt={selectedRecipe.title} className="w-full h-full object-cover" />
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    <Badge className="bg-primary/90">{selectedRecipe.category}</Badge>
-                    <Badge variant="outline" className={cn(
-                      selectedRecipe.difficulty === 'سهل' ? 'text-green-600 border-green-200 bg-green-50' :
-                      selectedRecipe.difficulty === 'متوسط' ? 'text-amber-600 border-amber-200 bg-amber-50' :
-                      'text-red-600 border-red-200 bg-red-50'
-                    )}>
-                      {selectedRecipe.difficulty}
-                    </Badge>
-                    <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {selectedRecipe.time}
-                    </Badge>
-                  </div>
-
-                  <div className="mt-6">
-                    <h3 className="text-lg font-semibold mb-3">المكونات</h3>
-                    <ul className="list-disc list-inside space-y-2">
-                      {selectedRecipe.ingredients.map((ingredient, index) => (
-                        <li key={index} className="text-gray-700">{ingredient}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">طريقة التحضير</h3>
-                  <ol className="list-decimal list-inside space-y-4">
-                    {selectedRecipe.instructions.map((step, index) => (
-                      <li key={index} className="text-gray-700">
-                        <span className="font-medium text-gray-900">الخطوة {index + 1}:</span>{' '}
-                        {step}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              </div>
-
-              <div className="mt-8 flex justify-end">
-                <Button onClick={() => saveRecipe(selectedRecipe)} className="bg-primary text-white">
-                  <Save className="h-4 w-4 mr-2" />
-                  حفظ الوصفة في مجموعتك
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <AIRecipeDetail
+        selectedRecipe={selectedRecipe}
+        isDetailOpen={isDetailOpen}
+        setIsDetailOpen={setIsDetailOpen}
+        saveRecipe={saveRecipe}
+      />
     </div>
   );
 };
