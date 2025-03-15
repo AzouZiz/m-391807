@@ -8,13 +8,19 @@ const AIRecipeLoading: React.FC = () => {
     <div className="flex items-center justify-center h-96">
       <Card className="w-full max-w-md p-6 bg-white/20 backdrop-blur-lg border border-white/30">
         <div className="text-center">
-          <Sparkles className="h-12 w-12 text-white mx-auto mb-4 animate-pulse" />
+          <div className="relative w-16 h-16 mx-auto mb-6">
+            <Sparkles className="h-12 w-12 text-white mx-auto absolute top-0 left-0 right-0 animate-pulse" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary to-indigo-500 rounded-full blur-lg opacity-50 animate-pulse"></div>
+          </div>
           <p className="text-white text-lg font-medium mb-4">
             جاري إنشاء وصفات ذكية باستخدام الذكاء الاصطناعي...
           </p>
-          <div className="h-2 bg-white/20 rounded overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-primary to-accent w-1/2 animate-pulse"></div>
+          <div className="relative h-2 bg-white/10 rounded-full overflow-hidden mb-2">
+            <div className="h-full bg-gradient-to-r from-primary via-indigo-500 to-primary bg-[length:200%_auto] animate-gradient-x"></div>
           </div>
+          <p className="text-white/70 text-sm">
+            قد تستغرق العملية بضع ثوانٍ، يرجى الانتظار
+          </p>
         </div>
       </Card>
     </div>
