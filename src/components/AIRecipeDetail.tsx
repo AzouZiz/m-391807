@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Save, Share2, PrinterIcon, Heart, ChefHat } from 'lucide-react';
+import { Clock, Save, Share2, PrinterIcon, Heart, ChefHat, View3d } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -10,7 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import Recipe3DView from './Recipe3DView';
 
 interface AIRecipe {
   id: string;
@@ -39,6 +41,7 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
 }) => {
   const [isSaving, setIsSaving] = React.useState(false);
   const [isLiked, setIsLiked] = React.useState(false);
+  const [is3DViewOpen, setIs3DViewOpen] = React.useState(false);
   
   if (!selectedRecipe) return null;
 
@@ -93,6 +96,14 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
               >
                 <Heart className={cn("h-5 w-5", isLiked && "fill-current")} />
               </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-gray-400 hover:text-blue-500"
+                onClick={() => setIs3DViewOpen(true)}
+              >
+                <View3d className="h-5 w-5" />
+              </Button>
             </div>
           </div>
           <DialogDescription className="text-base text-gray-500">{selectedRecipe.description}</DialogDescription>
@@ -123,6 +134,7 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
                 <Clock className="h-3 w-3 mr-1" />
                 {selectedRecipe.time}
               </Badge>
+              <Recipe3DView recipeType={selectedRecipe.category} />
             </div>
 
             <div className="mt-6">
@@ -152,7 +164,7 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
           </div>
         </div>
 
-        <div className="mt-8 flex justify-end">
+        <DialogFooter className="mt-8">
           <Button 
             onClick={handleSave} 
             className="bg-primary text-white"
@@ -165,8 +177,22 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
             )}
             حفظ الوصفة في مجموعتك
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
+
+      {/* نافذة العرض ثلاثي الأبعاد */}
+      <Dialog open={is3DViewOpen} onOpenChange={setIs3DViewOpen}>
+        <DialogContent className="sm:max-w-md md:max-w-xl h-[500px] p-0">
+          <DialogHeader className="absolute top-2 right-2 z-10">
+            <Button variant="ghost" size="icon" onClick={() => setIs3DViewOpen(false)} className="h-8 w-8 bg-white/80">
+              <View3d className="h-4 w-4" />
+            </Button>
+          </DialogHeader>
+          <div className="w-full h-full">
+            <Recipe3DView recipeType={selectedRecipe.category} isButtonHidden={true} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };
