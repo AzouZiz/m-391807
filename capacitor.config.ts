@@ -16,7 +16,8 @@ const config: CapacitorConfig = {
       keystoreAlias: 'release',
       keystoreAliasPassword: 'password',
       releaseType: 'APK'
-    }
+    },
+    path: 'android' // ضمان تحديد المسار الصحيح لمجلد Android
   },
   plugins: {
     SplashScreen: {
