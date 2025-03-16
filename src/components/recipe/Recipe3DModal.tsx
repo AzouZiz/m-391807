@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Box } from 'lucide-react';
+import { X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
 } from "@/components/ui/dialog";
-import Recipe3DView from '../Recipe3DView';
+import RecipeScene from '../three-d/RecipeScene';
 
 interface Recipe3DModalProps {
   isOpen: boolean;
@@ -30,11 +30,11 @@ const Recipe3DModal: React.FC<Recipe3DModalProps> = ({
             onClick={() => setIsOpen(false)} 
             className="h-8 w-8 bg-white/80"
           >
-            <Box className="h-4 w-4" />
+            <X className="h-4 w-4" />
           </Button>
         </DialogHeader>
         <div className="w-full h-full">
-          <Recipe3DView recipeType={recipeCategory} isButtonHidden={true} />
+          <RecipeScene recipeType={recipeCategory} />
         </div>
       </DialogContent>
     </Dialog>
