@@ -4,7 +4,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Environment, PresentationControls } from '@react-three/drei';
 import { Mesh } from 'three';
 import { Button } from '@/components/ui/button';
-import { View3d, X } from 'lucide-react';
+import { Cube, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -93,7 +93,7 @@ const Recipe3DView: React.FC<Recipe3DViewProps> = ({
               size="sm" 
               className="flex gap-2 items-center"
             >
-              <View3d size={16} />
+              <Cube size={16} />
               عرض ثلاثي الأبعاد
             </Button>
           </DialogTrigger>

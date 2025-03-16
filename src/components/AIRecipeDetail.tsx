@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Save, Share2, PrinterIcon, Heart, ChefHat, View3d } from 'lucide-react';
+import { Clock, Save, Share2, PrinterIcon, Heart, ChefHat, Cube } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -102,7 +102,7 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
                 className="text-gray-400 hover:text-blue-500"
                 onClick={() => setIs3DViewOpen(true)}
               >
-                <View3d className="h-5 w-5" />
+                <Cube className="h-5 w-5" />
               </Button>
             </div>
           </div>
@@ -185,7 +185,7 @@ const AIRecipeDetail: React.FC<AIRecipeDetailProps> = ({
         <DialogContent className="sm:max-w-md md:max-w-xl h-[500px] p-0">
           <DialogHeader className="absolute top-2 right-2 z-10">
             <Button variant="ghost" size="icon" onClick={() => setIs3DViewOpen(false)} className="h-8 w-8 bg-white/80">
-              <View3d className="h-4 w-4" />
+              <Cube className="h-4 w-4" />
             </Button>
           </DialogHeader>
           <div className="w-full h-full">
