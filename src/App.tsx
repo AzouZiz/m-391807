@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from '@/pages/Index';
 import Login from '@/pages/Login';
 import Signup from '@/pages/Signup';
@@ -15,7 +16,7 @@ import Profile from '@/pages/Profile';
 import NotFound from '@/pages/NotFound';
 import { useAppStore } from './store/app';
 import { supabase } from './integrations/supabase/client';
-import { Toaster } from '@/hooks/use-toast';
+import { Toaster } from '@/components/ui/toaster';
 
 function App() {
   return (
@@ -41,4 +42,3 @@ function App() {
 }
 
 export default App;
-
