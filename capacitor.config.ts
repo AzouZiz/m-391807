@@ -6,7 +6,9 @@ const config: CapacitorConfig = {
   appName: 'm-391807',
   webDir: 'dist',
   server: {
-    url: 'https://1db14308-52a3-4b8a-b621-7c8446946a19.lovableproject.com?forceHideBadge=true',
+    url: process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}?forceHideBadge=true`
+      : 'https://1db14308-52a3-4b8a-b621-7c8446946a19.lovableproject.com?forceHideBadge=true',
     cleartext: true
   },
   android: {
