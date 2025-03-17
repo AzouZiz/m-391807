@@ -7,19 +7,19 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     url: process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}?forceHideBadge=true`
-      : 'https://1db14308-52a3-4b8a-b621-7c8446946a19.lovableproject.com?forceHideBadge=true',
+      ? `https://${process.env.VERCEL_URL}`
+      : 'https://1db14308-52a3-4b8a-b621-7c8446946a19.lovableproject.com',
     cleartext: true
   },
   android: {
     buildOptions: {
-      keystorePath: 'release-key.keystore',
+      keystorePath: 'android/app/release-key.keystore',
       keystorePassword: 'password',
       keystoreAlias: 'release',
       keystoreAliasPassword: 'password',
       releaseType: 'APK'
     },
-    path: 'android' // ضمان تحديد المسار الصحيح لمجلد Android
+    path: 'android'
   },
   plugins: {
     SplashScreen: {

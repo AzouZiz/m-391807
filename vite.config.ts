@@ -20,6 +20,10 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // إضافة خيار base للتوافق مع Vercel
+  build: {
+    outDir: "dist",
+    sourcemap: true,
+  },
+  // Using relative base path for compatibility with Vercel
   base: "./",
 }));
