@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from '@/pages/Index';
 import Login from '@/pages/Login';
@@ -19,6 +19,30 @@ import { supabase } from './integrations/supabase/client';
 import { Toaster } from '@/components/ui/toaster';
 
 function App() {
+  const { setIsAuthenticated } = useAppStore();
+
+  useEffect(() => {
+    // Check for existing session on app load
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    
+    checkSession();
+    
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setIsAuthenticated(!!session);
+      }
+    );
+    
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [setIsAuthenticated]);
+
   return (
     <Router>
       <Routes>

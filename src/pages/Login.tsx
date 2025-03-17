@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChefHat, Mail, Lock, ArrowRight, User, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,9 +8,11 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAppStore } from '@/store/app';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, setIsAuthenticated } = useAppStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,17 +22,12 @@ const Login = () => {
     general?: string;
   }>({});
 
-  useEffect(() => {
-    // التحقق مما إذا كان المستخدم مسجل الدخول بالفعل
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/dashboard');
-      }
-    };
-    
-    checkSession();
-  }, [navigate]);
+  // If user is already authenticated, redirect to dashboard
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -65,6 +62,8 @@ const Login = () => {
       if (error) {
         throw error;
       }
+      
+      setIsAuthenticated(true);
       
       toast({
         title: "تم تسجيل الدخول بنجاح",

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChefHat, Mail, Lock, User, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,9 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAppStore } from '@/store/app';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, setIsAuthenticated } = useAppStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,17 +27,12 @@ const Signup = () => {
     general?: string;
   }>({});
 
-  useEffect(() => {
-    // التحقق مما إذا كان المستخدم مسجل الدخول بالفعل
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/dashboard');
-      }
-    };
-    
-    checkSession();
-  }, [navigate]);
+  // If user is already authenticated, redirect to dashboard
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -82,12 +79,16 @@ const Signup = () => {
           data: {
             name,
           },
+          // Disable email confirmation
+          emailRedirectTo: undefined
         },
       });
       
       if (error) {
         throw error;
       }
+      
+      setIsAuthenticated(true);
       
       toast({
         title: "تم إنشاء الحساب",
