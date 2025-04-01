@@ -24,22 +24,29 @@ function App() {
   const { setIsAuthenticated } = useAppStore();
 
   useEffect(() => {
-    // Check for existing session on app load
+    // التحقق من الجلسة الحالية عند تحميل التطبيق
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
+      
+      // إذا كان المستخدم قادمًا من عملية تسجيل الدخول باستخدام OAuth (مثل Google)
+      // فقد يكون لديه رمز مصادقة في عنوان URL
+      if (window.location.hash && window.location.hash.includes('access_token')) {
+        // سوف يتم التعامل مع ذلك تلقائيًا بواسطة supabase.auth.getSession()
+        // وستتم إعادة توجيه المستخدم إلى مكان آخر إذا تم تحديده في redirectTo
+      }
     };
     
     checkSession();
     
-    // Listen for auth state changes
+    // الاستماع لتغييرات حالة المصادقة
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setIsAuthenticated(!!session);
       }
     );
     
-    // Cleanup subscription on unmount
+    // تنظيف الاشتراك عند إلغاء التحميل
     return () => {
       subscription.unsubscribe();
     };
