@@ -5,6 +5,7 @@ import { Mail, Lock, ArrowRight, AlertCircle, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppStore } from '@/store/app';
@@ -20,6 +21,7 @@ const LoginForm = () => {
   const { setIsAuthenticated } = useAppStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<ErrorState>({});
 
@@ -50,7 +52,11 @@ const LoginForm = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
+        options: {
+          // استخدام خيار تذكرني لزيادة فترة انتهاء الصلاحية
+          expiresIn: rememberMe ? 30 * 24 * 60 * 60 : 3600, // 30 يوم مقابل ساعة واحدة
+        }
       });
       
       if (error) {
@@ -141,6 +147,21 @@ const LoginForm = () => {
             {errors.password}
           </p>
         )}
+      </div>
+      
+      {/* خيار تذكرني */}
+      <div className="flex items-center space-x-2">
+        <Checkbox 
+          id="remember" 
+          checked={rememberMe}
+          onCheckedChange={(checked) => setRememberMe(checked === true)}
+        />
+        <Label 
+          htmlFor="remember" 
+          className="text-sm text-white/80 cursor-pointer"
+        >
+          تذكرني
+        </Label>
       </div>
       
       <Button 
