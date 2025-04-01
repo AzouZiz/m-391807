@@ -16,6 +16,8 @@ import MealPlanning from '@/pages/MealPlanning';
 import Cart from '@/pages/Cart';
 import Profile from '@/pages/Profile';
 import NotFound from '@/pages/NotFound';
+import Terms from '@/pages/Terms';
+import Privacy from '@/pages/Privacy';
 import { useAppStore } from './store/app';
 import { supabase } from './integrations/supabase/client';
 import { Toaster } from '@/components/ui/toaster';
@@ -69,6 +71,8 @@ function App() {
         <Route path="/meal-planning" element={<MealPlanning />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
