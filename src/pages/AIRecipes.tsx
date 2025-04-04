@@ -1,8 +1,6 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Sparkles } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import AIRecipeFilters from '@/components/AIRecipeFilters';
@@ -10,6 +8,9 @@ import AIRecipeCard from '@/components/AIRecipeCard';
 import AIRecipeLoading from '@/components/AIRecipeLoading';
 import AIRecipeEmpty from '@/components/AIRecipeEmpty';
 import AIRecipeDetail from '@/components/AIRecipeDetail';
+import PageHeader from '@/components/layout/PageHeader';
+import PageFooter from '@/components/layout/PageFooter';
+import BackButton from '@/components/layout/BackButton';
 
 interface AIRecipe {
   id: string;
@@ -171,14 +172,7 @@ const AIRecipes = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-900/90 via-indigo-800/90 to-blue-900/90">
       <div className="container mx-auto py-8 px-4">
         <div className="flex items-center justify-between mb-8">
-          <Button 
-            variant="ghost" 
-            className="text-white hover:bg-white/20"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            العودة
-          </Button>
+          <BackButton />
           
           <div className="flex items-center">
             <Sparkles className="h-8 w-8 text-white mr-2 glow-effect" />
@@ -228,6 +222,8 @@ const AIRecipes = () => {
             )}
           </div>
         </div>
+        
+        <PageFooter className="mt-8" />
       </div>
 
       {/* Recipe Detail Dialog */}

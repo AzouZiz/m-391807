@@ -1,11 +1,12 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChefHat, Search, Award, Book, UserRound, LogOut, Calendar, Sparkles } from 'lucide-react';
+import { Search, Award, Book, UserRound, LogOut, Calendar, Sparkles } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import PageHeader from '@/components/layout/PageHeader';
+import PageFooter from '@/components/layout/PageFooter';
 
 interface User {
   id: string;
@@ -19,7 +20,6 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // التحقق مما إذا كان المستخدم مسجل الدخول
     const currentUserJSON = localStorage.getItem('currentUser');
     
     if (!currentUserJSON) {
@@ -67,13 +67,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-800 to-blue-900 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <ChefHat className="h-10 w-10 text-white glow-effect" />
-            <span className="text-3xl font-bold text-white">SapidFood</span>
-          </div>
-          <p className="text-white text-base">منصة تجربة الطعام المدعومة بالذكاء الاصطناعي</p>
-        </div>
+        <PageHeader className="mb-8" />
         
         <div className="bg-white/20 backdrop-blur-lg border border-white/30 rounded-lg p-6 mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
@@ -160,11 +154,7 @@ const Dashboard = () => {
           </div>
         </div>
         
-        <div className="text-center">
-          <p className="text-white/80 text-xs">
-            © 2025 SapidFood. جميع الحقوق محفوظة.
-          </p>
-        </div>
+        <PageFooter />
       </div>
     </div>
   );

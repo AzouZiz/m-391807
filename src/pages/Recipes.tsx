@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChefHat, Plus, Search, Trash2, Edit, ArrowLeft } from 'lucide-react';
+import { Plus, Search, Trash2, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
@@ -9,6 +8,9 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import PageHeader from '@/components/layout/PageHeader';
+import PageFooter from '@/components/layout/PageFooter';
+import BackButton from '@/components/layout/BackButton';
 
 interface Recipe {
   id: string;
@@ -54,7 +56,6 @@ const Recipes = () => {
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
 
   useEffect(() => {
-    // التحقق مما إذا كان المستخدم مسجل الدخول
     const currentUserJSON = localStorage.getItem('currentUser');
     
     if (!currentUserJSON) {
@@ -68,12 +69,10 @@ const Recipes = () => {
     }
     
     try {
-      // استرداد الوصفات من التخزين المحلي أو استخدام الوصفات الافتراضية
       const savedRecipes = localStorage.getItem('sapidFoodRecipes');
       if (savedRecipes) {
         setRecipes(JSON.parse(savedRecipes));
       } else {
-        // استخدام الوصفات الافتراضية في حالة عدم وجود وصفات محفوظة
         localStorage.setItem('sapidFoodRecipes', JSON.stringify(defaultRecipes));
         setRecipes(defaultRecipes);
       }
@@ -134,7 +133,6 @@ const Recipes = () => {
     const currentUser = JSON.parse(currentUserJSON);
 
     if (editingRecipe) {
-      // تحديث وصفة موجودة
       const updatedRecipes = recipes.map(r => 
         r.id === editingRecipe.id ? { ...editingRecipe, ingredients: [...editingRecipe.ingredients] } : r
       );
@@ -146,7 +144,6 @@ const Recipes = () => {
         description: "تم تحديث الوصفة بنجاح",
       });
     } else {
-      // إضافة وصفة جديدة
       if (!newRecipe.title.trim() || newRecipe.ingredients.length === 0 || !newRecipe.instructions.trim()) {
         toast({
           title: "بيانات غير مكتملة",
@@ -167,7 +164,6 @@ const Recipes = () => {
       setRecipes(updatedRecipes);
       localStorage.setItem('sapidFoodRecipes', JSON.stringify(updatedRecipes));
       
-      // إعادة تعيين نموذج الوصفة الجديدة
       setNewRecipe({
         title: '',
         ingredients: [],
@@ -219,25 +215,12 @@ const Recipes = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-800 to-blue-900 flex flex-col p-4">
       <div className="container mx-auto max-w-4xl">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <ChefHat className="h-10 w-10 text-white glow-effect" />
-            <span className="text-3xl font-bold text-white">SapidFood</span>
-          </div>
-          <p className="text-white text-base">منصة تجربة الطعام المدعومة بالذكاء الاصطناعي</p>
-        </div>
+        <PageHeader className="mb-8" />
         
         <Card className="bg-white/20 backdrop-blur-lg border border-white/30 p-4 mb-6">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <Button 
-                variant="ghost" 
-                className="text-white p-0 hover:bg-white/20" 
-                onClick={() => navigate('/dashboard')}
-              >
-                <ArrowLeft className="h-5 w-5 mr-1" />
-                <span className="text-white font-medium">العودة</span>
-              </Button>
+              <BackButton to="/dashboard" />
               <h1 className="text-2xl font-bold text-white">وصفاتي</h1>
             </div>
           </CardHeader>
@@ -430,11 +413,7 @@ const Recipes = () => {
           </CardContent>
         </Card>
         
-        <div className="text-center mt-8">
-          <p className="text-white/80 text-xs">
-            © 2025 SapidFood. جميع الحقوق محفوظة.
-          </p>
-        </div>
+        <PageFooter className="mt-8" />
       </div>
     </div>
   );
