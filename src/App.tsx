@@ -21,6 +21,7 @@ import Privacy from '@/pages/Privacy';
 import { useAppStore } from './store/app';
 import { supabase } from './integrations/supabase/client';
 import { Toaster } from '@/components/ui/toaster';
+import AthleteNutrition from '@/pages/AthleteNutrition';
 
 function App() {
   const { setIsAuthenticated } = useAppStore();
@@ -69,6 +70,7 @@ function App() {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/ai-recipes" element={<AIRecipes />} />
         <Route path="/meal-planning" element={<MealPlanning />} />
+        <Route path="/athlete-nutrition" element={<AthleteNutrition />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/terms" element={<Terms />} />
